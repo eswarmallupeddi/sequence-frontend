@@ -101,38 +101,41 @@ Object.keys(dropzones).forEach(teamColor => {
     });
 });
 
+// Wire up the Randomize Teams button in script.js
+document.querySelector('.outline-btn').addEventListener('click', () => {
+    socket.emit('randomizeTeams', { roomId: myRoomId });
+});
+
+// Update how player tags are rendered in the lobby
 socket.on('lobbyUpdate', (players) => {
-    // Clear all dropzones first
     Object.values(dropzones).forEach(zone => { if(zone) zone.innerHTML = ''; });
 
     players.forEach(p => {
-        // Determine if I am the host
         if (p.name === myName && p.isHost) {
             isHost = true;
-            startGameBtn.style.display = "block"; // Show start button
+            startGameBtn.style.display = "block";
         } else if (p.name === myName && !p.isHost) {
-            startGameBtn.style.display = "none"; // Hide start button for guests
+            startGameBtn.style.display = "none";
         }
 
-        // Create the draggable player tag
         const playerTag = document.createElement('div');
-        playerTag.innerText = p.name;
-        playerTag.style.background = "rgba(255,255,255,0.3)";
-        playerTag.style.padding = "5px 10px";
-        playerTag.style.margin = "5px";
-        playerTag.style.borderRadius = "4px";
-        playerTag.style.cursor = isHost ? "grab" : "default";
-        playerTag.style.fontWeight = "bold";
+        playerTag.className = 'player-tag';
+        playerTag.innerText = p.name + (p.name === myName ? ' (You)' : '');
 
-        // Make it draggable
-        if (isHost) {
-            playerTag.draggable = true;
-            playerTag.addEventListener('dragstart', (e) => {
-                e.dataTransfer.setData('text/plain', p.name);
+        // FEATURE: Click your own name tag to cycle through teams manually!
+        if (p.name === myName) {
+            playerTag.title = "Click to switch teams!";
+            playerTag.addEventListener('click', () => {
+                const teams = ['blue', 'red', 'green'];
+                const nextTeam = teams[(teams.indexOf(p.team) + 1) % teams.length];
+                
+                socket.emit('updateTeams', {
+                    roomId: myRoomId,
+                    updatedPlayers: [{ name: myName, team: nextTeam }]
+                });
             });
         }
 
-        // Put them in their assigned team box, or default to blue if unassigned
         const targetZone = dropzones[p.team] || dropzones['blue'];
         if (targetZone) targetZone.appendChild(playerTag);
     });
