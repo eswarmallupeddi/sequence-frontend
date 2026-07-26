@@ -18,10 +18,38 @@ input[type="text"] { width: 100%; padding: 15px; border-radius: 8px; border: non
 
 /* Drag and Drop Team Boxes */
 .teams-container { display: flex; gap: 20px; margin-top: 15px; }
-.team-box { flex: 1; height: 150px; border-radius: 12px; padding: 15px; }
+/* Update your team-box styles in style.css */
+.team-box { 
+    flex: 1; 
+    height: 180px; 
+    border-radius: 12px; 
+    padding: 15px; 
+    display: flex; 
+    flex-direction: column; 
+    gap: 8px; 
+    overflow-y: auto; 
+    border: 3px solid rgba(0,0,0,0.2);
+}
 .blue-team { background-color: #3b82f6; }
 .red-team { background-color: #ff7675; }
-.green-team { background-color: #b8e994; color: #333; }
+.green-team { background-color: #b8e994; }
+
+/* Player tag inside the lobby */
+.player-tag {
+    background: rgba(0, 0, 0, 0.25);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    text-align: center;
+    transition: 0.2s;
+    user-select: none;
+}
+.player-tag:hover {
+    background: rgba(0, 0, 0, 0.4);
+    transform: scale(1.02);
+}
 
 /* The Board Grid */
 .sequence-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 2px; background: #0de0d8; padding: 2px; }
