@@ -1,272 +1,252 @@
-// REPLACE THIS WITH YOUR SECURE CLOUDFLARE TUNNEL URL
 const backendUrl = "https://spears-info-morris-portrait.trycloudflare.com"; 
 const socket = io(backendUrl);
 
-// --- Tracers ---
-socket.on('connect', () => console.log("🟢 SUCCESS: Frontend connected to the server!"));
-socket.on('connect_error', (err) => console.log("🔴 ERROR: Failed to connect to server.", err));
+socket.on('connect', () => console.log("🟢 Frontend connected!"));
 
 // --- DOM Elements ---
 const landingScreen = document.getElementById('landing-screen');
 const nameScreen = document.getElementById('name-screen');
 const lobbyScreen = document.getElementById('lobby-screen');
-const gameScreen = document.getElementById('game-screen');
+const sequenceScreen = document.getElementById('sequence-screen');
+const unoScreen = document.getElementById('uno-screen');
 
 const selectSequenceBtn = document.getElementById('select-sequence');
+const selectUnoBtn = document.getElementById('select-uno');
 const gameTitleDisplay = document.getElementById('game-title-display');
 const nicknameInput = document.getElementById('nickname');
 const submitNameBtn = document.getElementById('submit-name');
 const shareLinkInput = document.getElementById('share-link');
-const copyBtn = document.getElementById('copy-btn');
 const startGameBtn = document.getElementById('start-game-btn');
-const rematchBtn = document.getElementById('rematch-btn');
+const rematchBtns = document.querySelectorAll('.rematch-btn');
+const colorPickerModal = document.getElementById('color-picker-modal');
 
-const boardEl = document.getElementById('board');
-const handEl = document.getElementById('hand');
-const turnIndicator = document.getElementById('turn-indicator');
-const lastDiscardedEl = document.getElementById('last-discarded');
-const cardsLeftEl = document.getElementById('cards-left');
-
-// --- State Variables ---
 let myName = "";
 let myRoomId = "";
 let myGameType = "";
-let isHost = false;
-let selectedCard = null;
 let isGameOver = false;
+let selectedCard = null; // Used for Sequence
 
-// --- URL Routing Logic ---
+// URL Routing
 const urlParams = new URLSearchParams(window.location.search);
-const roomFromUrl = urlParams.get('room');
-const gameFromUrl = urlParams.get('game');
-
-if (roomFromUrl && gameFromUrl) {
-    myRoomId = roomFromUrl;
-    myGameType = gameFromUrl;
+if (urlParams.get('room') && urlParams.get('game')) {
+    myRoomId = urlParams.get('room');
+    myGameType = urlParams.get('game');
     landingScreen.classList.remove('active');
     nameScreen.classList.add('active');
-    gameTitleDisplay.innerText = `Join ${myGameType.charAt(0).toUpperCase() + myGameType.slice(1)}`;
+    gameTitleDisplay.innerText = `Join ${myGameType === 'uno' ? 'Color Match' : 'Sequence'}`;
 } else {
     myRoomId = Math.random().toString(36).substring(2, 9);
 }
 
-selectSequenceBtn.addEventListener('click', () => {
-    myGameType = 'sequence';
+selectSequenceBtn.addEventListener('click', () => setGameType('sequence', 'Join Sequence'));
+selectUnoBtn.addEventListener('click', () => setGameType('uno', 'Join Color Match'));
+
+function setGameType(type, title) {
+    myGameType = type;
     landingScreen.classList.remove('active');
     nameScreen.classList.add('active');
-    gameTitleDisplay.innerText = "Join Sequence";
+    gameTitleDisplay.innerText = title;
     window.history.pushState({}, '', `?game=${myGameType}&room=${myRoomId}`);
-});
+}
 
-// --- Join Lobby ---
 submitNameBtn.addEventListener('click', () => {
     myName = nicknameInput.value.trim();
-    if (!myName) return alert("Please enter a nickname!");
-
+    if (!myName) return alert("Enter nickname!");
     nameScreen.classList.remove('active');
     lobbyScreen.classList.add('active');
-
-    const inviteUrl = `${window.location.origin}${window.location.pathname}?game=${myGameType}&room=${myRoomId}`;
-    shareLinkInput.value = inviteUrl;
-
+    shareLinkInput.value = `${window.location.origin}${window.location.pathname}?game=${myGameType}&room=${myRoomId}`;
     socket.emit('joinRoom', { roomId: myRoomId, nickname: myName, gameType: myGameType });
 });
 
-copyBtn.addEventListener('click', () => {
-    shareLinkInput.select();
-    document.execCommand('copy');
-    copyBtn.innerText = "Copied!";
-    setTimeout(() => copyBtn.innerText = "Copy", 2000);
+document.getElementById('copy-btn').addEventListener('click', () => {
+    shareLinkInput.select(); document.execCommand('copy');
 });
 
-// --- Drag and Drop Lobby Logic ---
-const dropzones = {
-    'blue': document.getElementById('blue-dropzone'),
-    'red': document.getElementById('red-dropzone'),
-    'green': document.getElementById('green-dropzone')
-};
+// --- Lobby Logic ---
+const dropzones = { 'blue': document.getElementById('blue-dropzone'), 'red': document.getElementById('red-dropzone'), 'green': document.getElementById('green-dropzone') };
 
-Object.keys(dropzones).forEach(teamColor => {
-    const zone = dropzones[teamColor];
-    if (!zone) return;
-
-    zone.addEventListener('dragover', (e) => {
-        e.preventDefault(); 
-        e.dataTransfer.dropEffect = 'move';
-        zone.classList.add('drag-over'); 
-    });
-
-    zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
-
-    zone.addEventListener('drop', (e) => {
+Object.keys(dropzones).forEach(color => {
+    dropzones[color].addEventListener('dragover', e => e.preventDefault());
+    dropzones[color].addEventListener('drop', e => {
         e.preventDefault();
-        zone.classList.remove('drag-over');
-        const playerName = e.dataTransfer.getData('text/plain');
-        socket.emit('updateTeams', { roomId: myRoomId, updatedPlayers: [{ name: playerName, team: teamColor }] });
+        socket.emit('updateTeams', { roomId: myRoomId, updatedPlayers: [{ name: e.dataTransfer.getData('text/plain'), team: color }] });
     });
 });
 
 socket.on('lobbyUpdate', (players) => {
-    Object.values(dropzones).forEach(zone => { if(zone) zone.innerHTML = ''; });
-
+    Object.values(dropzones).forEach(z => z.innerHTML = '');
     players.forEach(p => {
-        if (p.name === myName) {
-            isHost = p.isHost;
-            startGameBtn.style.display = isHost ? "block" : "none";
-        }
-
-        const playerTag = document.createElement('div');
-        playerTag.className = 'player-tag';
-        
-        if (p.name === myName) {
-            playerTag.innerHTML = `${p.name} (You)<br><small style="font-weight:normal; font-size: 0.8em;">(Tap to change)</small>`;
-            playerTag.addEventListener('click', () => {
-                const teams = ['blue', 'red', 'green'];
-                const nextTeam = teams[(teams.indexOf(p.team) + 1) % teams.length];
-                socket.emit('updateTeams', { roomId: myRoomId, updatedPlayers: [{ name: myName, team: nextTeam }] });
-            });
-        } else {
-            playerTag.innerText = p.name;
-        }
-        
-        playerTag.setAttribute('draggable', 'true');
-        playerTag.addEventListener('dragstart', (e) => {
-            e.dataTransfer.setData('text/plain', p.name);
-            e.dataTransfer.effectAllowed = 'move';
-        });
-
-        const targetZone = dropzones[p.team] || dropzones['blue'];
-        if (targetZone) targetZone.appendChild(playerTag);
+        if (p.name === myName) startGameBtn.style.display = p.isHost ? "block" : "none";
+        const tag = document.createElement('div');
+        tag.className = 'player-tag';
+        tag.innerText = p.name + (p.name === myName ? " (You)" : "");
+        tag.setAttribute('draggable', 'true');
+        tag.addEventListener('dragstart', e => e.dataTransfer.setData('text/plain', p.name));
+        (dropzones[p.team] || dropzones['blue']).appendChild(tag);
     });
 });
 
 document.querySelector('.outline-btn').addEventListener('click', () => socket.emit('randomizeTeams', { roomId: myRoomId }));
-
 startGameBtn.addEventListener('click', () => socket.emit('startGame', { roomId: myRoomId }));
-rematchBtn.addEventListener('click', () => socket.emit('rematch', { roomId: myRoomId }));
+rematchBtns.forEach(btn => btn.addEventListener('click', () => socket.emit('rematch', { roomId: myRoomId })));
 
-// --- Game Logic & Graphics ---
-
-function getCardImageUrl(cardString) {
-    if (cardString === 'FREE') return ''; 
-    const parts = cardString.split('-');
-    let suitChar = parts[0] === '♠' ? 'S' : parts[0] === '♥' ? 'H' : parts[0] === '♣' ? 'C' : 'D';
-    let rankChar = parts[1] === '10' ? '0' : parts[1];
-    return `https://deckofcardsapi.com/static/img/${rankChar}${suitChar}.png`;
-}
-
+// --- Global Game Router ---
 socket.on('gameState', (data) => {
     lobbyScreen.classList.remove('active');
-    gameScreen.classList.add('active');
-
     isGameOver = data.isGameOver || false;
 
+    if (data.gameType === 'sequence') {
+        sequenceScreen.classList.add('active');
+        renderSequence(data);
+    } else if (data.gameType === 'uno') {
+        unoScreen.classList.add('active');
+        renderUno(data);
+    }
+});
+
+socket.on('gameOver', (msg) => alert(`GAME OVER! ${msg}`));
+
+// --- Sequence Logic ---
+function renderSequence(data) {
+    const turnInd = document.getElementById('seq-turn-indicator');
+    const rematchBtn = sequenceScreen.querySelector('.rematch-btn');
+    
     if (isGameOver) {
-        turnIndicator.innerText = "GAME OVER";
-        turnIndicator.style.background = "#222";
-        turnIndicator.style.color = "white";
-        rematchBtn.style.display = "block";
+        turnInd.innerText = "GAME OVER"; turnInd.style.background = "#222"; rematchBtn.style.display = "block";
     } else {
         rematchBtn.style.display = "none";
-        const isMyTurn = data.turnPlayer === myName;
-        turnIndicator.innerText = isMyTurn ? "Your Turn!" : `${data.turnPlayer.toUpperCase()}'s Turn`;
-        
-        const turnColors = { 'red': '#ff7675', 'blue': '#3b82f6', 'green': '#27ae60' };
-        turnIndicator.style.background = turnColors[data.turnTeam] || '#444';
-        turnIndicator.style.color = 'white';
+        turnInd.innerText = data.turnPlayer === myName ? "Your Turn!" : `${data.turnPlayer.toUpperCase()}'s Turn`;
+        const colors = { 'red': '#ff7675', 'blue': '#3b82f6', 'green': '#27ae60' };
+        turnInd.style.background = colors[data.turnTeam] || '#444';
     }
 
-    if (data.scores) {
+    if(data.scores) {
         document.getElementById('score-red').innerText = data.scores.red;
         document.getElementById('score-blue').innerText = data.scores.blue;
         document.getElementById('score-green').innerText = data.scores.green;
     }
-
-    if (data.cardsLeft !== undefined) cardsLeftEl.innerText = data.cardsLeft;
     
-    // Update the Discard Pile with the last 3 cards
-    lastDiscardedEl.innerHTML = '';
-    if (data.lastDiscards && data.lastDiscards.length > 0) {
-        data.lastDiscards.forEach((card, index) => {
-            const img = document.createElement('img');
-            img.src = getCardImageUrl(card);
-            img.className = 'discarded-card';
-            
-            // Highlight the most recent card slightly
-            if (index === data.lastDiscards.length - 1) {
-                img.style.border = "2px solid #0de0d8"; 
-                img.style.transform = "scale(1.1)";
-            }
-            
-            lastDiscardedEl.appendChild(img);
+    document.getElementById('seq-cards-left').innerText = data.cardsLeft;
+    const discardEl = document.getElementById('seq-last-discarded');
+    discardEl.innerHTML = '';
+    if (data.lastDiscards) {
+        data.lastDiscards.forEach(c => {
+            const img = document.createElement('img'); img.src = getCardImageUrl(c); img.className = 'discarded-card';
+            discardEl.appendChild(img);
         });
     }
 
-    renderBoard(data.board);
-    renderHand(data.hand);
-    selectedCard = null; 
-});
-
-socket.on('gameOver', (winnerTeam) => {
-    alert(`GAME OVER! ${winnerTeam.toUpperCase()} TEAM WINS!`);
-});
-
-function renderBoard(boardState) {
-    boardEl.innerHTML = '';
-    boardState.forEach((space, index) => {
-        const div = document.createElement('div');
-        div.classList.add('board-space');
-        
-        if (space.card === 'FREE') {
-            div.style.background = '#ff477e';
-            div.innerHTML = '<span style="color:white; font-weight:bold;">FREE</span>';
-        } else {
-            const img = document.createElement('img');
-            img.src = getCardImageUrl(space.card);
-            img.className = 'card-img';
-            div.appendChild(img);
-        }
+    const boardEl = document.getElementById('board'); boardEl.innerHTML = '';
+    data.board.forEach((space, i) => {
+        const div = document.createElement('div'); div.classList.add('board-space');
+        if (space.card === 'FREE') { div.style.background = '#ff477e'; div.innerHTML = '<span style="color:white; font-weight:bold;">FREE</span>'; } 
+        else { const img = document.createElement('img'); img.src = getCardImageUrl(space.card); img.className = 'card-img'; div.appendChild(img); }
 
         if (space.team) {
             const chip = document.createElement('div');
-            const teamColors = { 'red': '#ff7675', 'blue': '#3b82f6', 'green': '#27ae60' };
-            chip.style.backgroundColor = teamColors[space.team];
-            chip.style.width = "45px";
-            chip.style.height = "45px";
-            chip.style.borderRadius = "50%";
-            chip.style.position = "absolute";
-            chip.style.boxShadow = "0 4px 6px rgba(0,0,0,0.5)";
-            chip.style.border = space.locked ? "4px solid gold" : "4px dashed white";
-            div.appendChild(chip);
+            chip.style.backgroundColor = { 'red': '#ff7675', 'blue': '#3b82f6', 'green': '#27ae60' }[space.team];
+            chip.style.width = "45px"; chip.style.height = "45px"; chip.style.borderRadius = "50%"; chip.style.position = "absolute";
+            chip.style.border = space.locked ? "4px solid gold" : "4px dashed white"; div.appendChild(chip);
         }
-
         div.addEventListener('click', () => {
-            if (isGameOver) return alert("The game is over! Play a rematch.");
-            if (!selectedCard) return alert("Select a card from your hand first!");
-            socket.emit('playMove', { roomId: myRoomId, username: myName, boardIndex: index, cardPlayed: selectedCard });
+            if (isGameOver || !selectedCard) return;
+            socket.emit('playMove', { roomId: myRoomId, username: myName, boardIndex: i, cardPlayed: selectedCard });
         });
-
         boardEl.appendChild(div);
+    });
+
+    const handEl = document.getElementById('seq-hand'); handEl.innerHTML = '';
+    data.hand.forEach(card => {
+        const img = document.createElement('img'); img.src = getCardImageUrl(card); img.className = 'hand-card';
+        img.addEventListener('click', () => {
+            Array.from(handEl.children).forEach(c => c.style.border = "none");
+            img.style.border = "3px solid #0de0d8"; selectedCard = card;
+        });
+        handEl.appendChild(img);
     });
 }
 
-function renderHand(handArray) {
-    handEl.innerHTML = '';
-    handArray.forEach(card => {
-        const img = document.createElement('img');
-        img.src = getCardImageUrl(card);
-        img.className = 'hand-card';
-        
-        img.addEventListener('click', () => {
-            Array.from(handEl.children).forEach(c => {
-                c.style.border = "none";
-                c.style.transform = "none";
-            });
-            img.style.border = "3px solid #0de0d8";
-            img.style.transform = "translateY(-10px)";
-            selectedCard = card;
-        });
-        
-        handEl.appendChild(img);
+function getCardImageUrl(c) {
+    if (c === 'FREE') return ''; 
+    let parts = c.split('-'); let s = parts[0] === '♠'?'S':parts[0] === '♥'?'H':parts[0] === '♣'?'C':'D';
+    let r = parts[1] === '10'?'0':parts[1]; return `https://deckofcardsapi.com/static/img/${r}${s}.png`;
+}
+
+// --- UNO Logic ---
+let pendingUnoCard = null;
+
+function renderUno(data) {
+    const turnInd = document.getElementById('uno-turn-indicator');
+    const rematchBtn = unoScreen.querySelector('.rematch-btn');
+
+    if (isGameOver) {
+        turnInd.innerText = "GAME OVER"; turnInd.style.background = "#222"; rematchBtn.style.display = "block";
+    } else {
+        rematchBtn.style.display = "none";
+        turnInd.innerText = data.turnPlayer === myName ? "Your Turn!" : `${data.turnPlayer.toUpperCase()}'s Turn`;
+        turnInd.style.background = data.turnPlayer === myName ? "#0de0d8" : "#444";
+    }
+
+    // Opponents
+    const oppEl = document.getElementById('uno-opponents'); oppEl.innerHTML = '';
+    data.playerList.forEach(p => {
+        if (p.name === myName) return;
+        const div = document.createElement('div'); div.className = 'uno-opponent';
+        div.innerHTML = `${p.name}<br><span style="font-size:24px; color:#0de0d8">${p.cardCount}</span> cards`;
+        oppEl.appendChild(div);
     });
+
+    // Top Card
+    const discardPile = document.getElementById('uno-discard-pile'); discardPile.innerHTML = '';
+    if (data.topCard) discardPile.appendChild(createUnoCard(data.topCard));
+
+    // My Hand
+    const handEl = document.getElementById('uno-hand'); handEl.innerHTML = '';
+    data.hand.forEach(card => {
+        const cardEl = createUnoCard(card);
+        cardEl.addEventListener('click', () => {
+            if (isGameOver || data.turnPlayer !== myName) return;
+            if (card.color === 'black') {
+                pendingUnoCard = card;
+                colorPickerModal.classList.add('active');
+            } else {
+                socket.emit('playUnoMove', { roomId: myRoomId, username: myName, card: card });
+            }
+        });
+        handEl.appendChild(cardEl);
+    });
+
+    document.getElementById('uno-draw-pile').onclick = () => {
+        if (!isGameOver && data.turnPlayer === myName) socket.emit('drawUnoCard', { roomId: myRoomId, username: myName });
+    };
+}
+
+// Handle Color Picker
+document.querySelectorAll('.color-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+        const chosen = e.target.getAttribute('data-color');
+        colorPickerModal.classList.remove('active');
+        if (pendingUnoCard) {
+            socket.emit('playUnoMove', { roomId: myRoomId, username: myName, card: pendingUnoCard, chosenColor: chosen });
+            pendingUnoCard = null;
+        }
+    });
+});
+
+function createUnoCard(cardObj) {
+    const el = document.createElement('div');
+    el.className = `uno-card ${cardObj.color}`;
+    let displayVal = cardObj.value;
+    if (displayVal === 'Skip') displayVal = '⊘';
+    if (displayVal === 'Rev') displayVal = '⇄';
+    if (displayVal === '+2') displayVal = '+2';
+    if (displayVal === 'Wild') displayVal = 'W';
+    if (displayVal === '+4') displayVal = '+4';
+
+    el.innerHTML = `
+        <div class="uno-card-mini">${displayVal}</div>
+        <div class="uno-card-inner"><span class="uno-card-value">${displayVal}</span></div>
+        <div class="uno-card-mini bottom">${displayVal}</div>
+    `;
+    return el;
 }
