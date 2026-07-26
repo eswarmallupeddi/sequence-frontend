@@ -32,7 +32,7 @@ input[type="text"] { width: 100%; padding: 15px; border-radius: 8px; border: non
 }
 .blue-team { background-color: #3b82f6; }
 .red-team { background-color: #ff7675; }
-.green-team { background-color: #b8e994; }
+.green-team { background-color: #27ae60; }
 
 /* The Board Grid */
 .sequence-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 2px; background: #0de0d8; padding: 2px; }
