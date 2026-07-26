@@ -19,14 +19,17 @@
                 <div class="game-card" id="select-sequence">
                     <img src="https://upload.wikimedia.org/wikipedia/commons/d/d4/Card_back_01.svg" alt="Sequence" width="80">
                     <h2>Sequence</h2>
-                    <p>Classic board & card game.</p>
+                    <p>Team-based board & card game.</p>
                 </div>
                 <div class="game-card" id="select-uno">
-                    <div class="uno-card-mockup">
-                        <div class="uno-mockup-inner">W</div>
-                    </div>
+                    <div class="uno-card-mockup"><div class="uno-mockup-inner">W</div></div>
                     <h2>Color Match</h2>
-                    <p>Be the first to play all your cards!</p>
+                    <p>Fast-paced card shedding.</p>
+                </div>
+                <div class="game-card" id="select-daadi">
+                    <div class="daadi-mockup">🦁 vs 🐯</div>
+                    <h2>Daadi</h2>
+                    <p>Ancient 9 Men's Morris strategy.</p>
                 </div>
             </div>
         </div>
@@ -52,9 +55,10 @@
             </div>
             
             <div class="lobby-controls">
-                <button class="outline-btn">Randomize Players</button>
+                <button class="outline-btn" id="randomize-btn">Randomize Players</button>
             </div>
 
+            <!-- Team Based Lobby (Sequence) -->
             <div class="teams-container" id="lobby-teams">
                 <div class="team-box blue-team">
                     <h3>Blue Team</h3>
@@ -70,6 +74,14 @@
                 </div>
             </div>
 
+            <!-- Free-For-All Lobby (Color Match & Daadi) -->
+            <div class="ffa-container" id="lobby-ffa" style="display: none;">
+                <div class="team-box" style="background: #4c566a; max-width: 400px; margin: 0 auto;">
+                    <h3>Players</h3>
+                    <div id="ffa-dropzone" class="dropzone"></div>
+                </div>
+            </div>
+
             <button id="start-game-btn" style="display: none;">Start Game</button>
         </div>
     </div>
@@ -77,9 +89,7 @@
     <!-- SCREEN 4A: Sequence Game Board -->
     <div id="sequence-screen" class="screen">
         <div class="game-layout">
-            <div class="board-container">
-                <div id="board"></div>
-            </div>
+            <div class="board-container"><div id="board"></div></div>
             <div class="side-panel">
                 <div class="turn-box">
                     <h2 id="seq-turn-indicator">Waiting...</h2>
@@ -111,40 +121,61 @@
         </div>
     </div>
 
-    <!-- SCREEN 4B: UNO Game Board -->
+    <!-- SCREEN 4B: Color Match Game Board -->
     <div id="uno-screen" class="screen">
         <div class="uno-layout">
-            
-            <div class="uno-opponents" id="uno-opponents">
-                <!-- Opponent details populated here -->
-            </div>
-
+            <div class="uno-opponents" id="uno-opponents"></div>
             <div class="uno-table">
                 <div class="turn-box" style="margin-bottom: 20px;">
                     <h2 id="uno-turn-indicator">Waiting...</h2>
                     <button class="rematch-btn" style="display: none;">Play Rematch</button>
                 </div>
-                
                 <div class="uno-center-piles">
                     <div class="uno-deck" id="uno-draw-pile">
-                        <div class="uno-card black"><div class="uno-card-inner"><span class="uno-card-value">UNO</span></div></div>
-                        <span>Draw</span>
+                        <div class="uno-card black"><div class="uno-card-inner"><span class="uno-card-value">DRAW</span></div></div>
                     </div>
-                    <div class="uno-discard" id="uno-discard-pile">
-                        <!-- Top card goes here -->
-                    </div>
+                    <div class="uno-discard" id="uno-discard-pile"></div>
                 </div>
             </div>
-
             <div class="uno-player-area">
                 <h3>Your Hand</h3>
                 <div id="uno-hand" class="uno-hand-grid"></div>
             </div>
-
         </div>
     </div>
 
-    <!-- UNO Color Picker Modal -->
+    <!-- SCREEN 4C: Daadi Game Board -->
+    <div id="daadi-screen" class="screen">
+        <div class="game-layout">
+            <div class="board-container">
+                <div id="daadi-board-container" class="daadi-wrapper">
+                    <!-- Pure CSS Board Geometry -->
+                    <div class="daadi-line outer"></div>
+                    <div class="daadi-line mid"></div>
+                    <div class="daadi-line inner"></div>
+                    <div class="daadi-cross vertical top"></div>
+                    <div class="daadi-cross vertical bottom"></div>
+                    <div class="daadi-cross horizontal left"></div>
+                    <div class="daadi-cross horizontal right"></div>
+                    <!-- Nodes injected via JS -->
+                    <div id="daadi-nodes"></div>
+                </div>
+            </div>
+            <div class="side-panel">
+                <div class="turn-box">
+                    <h2 id="daadi-turn-indicator">Waiting...</h2>
+                    <div id="daadi-action-text" style="margin-top: 10px; font-weight: bold; color: gold;"></div>
+                    <button class="rematch-btn" style="display: none;">Play Rematch</button>
+                </div>
+                <div class="scoreboard">
+                    <h3>Players</h3>
+                    <div id="daadi-players-list" style="margin-top: 15px; font-size: 1.2rem;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Color Picker Modal -->
     <div id="color-picker-modal" class="modal-overlay">
         <div class="modal">
             <h2>Pick a Color</h2>
