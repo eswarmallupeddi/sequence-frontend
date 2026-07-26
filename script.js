@@ -1,5 +1,5 @@
 // REPLACE THIS WITH YOUR SECURE CLOUDFLARE TUNNEL URL
-const backendUrl = "https://reaching-dietary-desert-asian.trycloudflare.com"; 
+const backendUrl = "https://seven-waiting-forwarding-betting.trycloudflare.com"; 
 const socket = io(backendUrl);
 
 // --- Tracers ---
