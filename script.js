@@ -1,5 +1,5 @@
 // REPLACE WITH YOUR SECURE CLOUDFLARE/ORACLE URL
-const backendUrl = "https://organizational-algorithm-fifteen-lol.trycloudflare.com"; 
+const backendUrl = "https://carb-turned-ribbon-essence.trycloudflare.com"; 
 const socket = io(backendUrl);
 
 // --- DOM Elements ---
