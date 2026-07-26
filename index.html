@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Game Hub & Sequence</title>
+    <title>Game Hub</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
 </head>
@@ -21,9 +21,12 @@
                     <h2>Sequence</h2>
                     <p>Classic board & card game.</p>
                 </div>
-                <div class="game-card disabled">
-                    <h2>Coming Soon</h2>
-                    <p>More games are on the way!</p>
+                <div class="game-card" id="select-uno">
+                    <div class="uno-card-mockup">
+                        <div class="uno-mockup-inner">W</div>
+                    </div>
+                    <h2>Color Match</h2>
+                    <p>Be the first to play all your cards!</p>
                 </div>
             </div>
         </div>
@@ -49,10 +52,10 @@
             </div>
             
             <div class="lobby-controls">
-                <button class="outline-btn">Randomize Teams</button>
+                <button class="outline-btn">Randomize Players</button>
             </div>
 
-            <div class="teams-container">
+            <div class="teams-container" id="lobby-teams">
                 <div class="team-box blue-team">
                     <h3>Blue Team</h3>
                     <div id="blue-dropzone" class="dropzone"></div>
@@ -71,22 +74,17 @@
         </div>
     </div>
 
-    <!-- SCREEN 4: Game Board -->
-    <div id="game-screen" class="screen">
+    <!-- SCREEN 4A: Sequence Game Board -->
+    <div id="sequence-screen" class="screen">
         <div class="game-layout">
-            
-            <!-- Left Side: The Board -->
             <div class="board-container">
                 <div id="board"></div>
             </div>
-            
-            <!-- Right Side: Side Panel -->
             <div class="side-panel">
                 <div class="turn-box">
-                    <h2 id="turn-indicator">Waiting...</h2>
-                    <button id="rematch-btn" style="display: none; width: 100%; margin-top: 10px; padding: 10px; background: #0de0d8; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; color: #333;">Play Rematch</button>
+                    <h2 id="seq-turn-indicator">Waiting...</h2>
+                    <button class="rematch-btn" style="display: none;">Play Rematch</button>
                 </div>
-
                 <div class="scoreboard">
                     <h3>Sequences (Goal: 2)</h3>
                     <div id="score-display">
@@ -95,24 +93,67 @@
                         <span style="color:#27ae60; color:white;">Green: <b id="score-green">0</b></span>
                     </div>
                 </div>
-                
                 <div class="hand-container">
                     <h3>Your Hand</h3>
-                    <div id="hand" class="cards-grid"></div>
+                    <div id="seq-hand" class="cards-grid"></div>
                 </div>
-
                 <div class="discard-pile">
                     <h3>Deck & Discard</h3>
                     <div class="pile-layout">
                         <div class="deck-box">
                             <img src="https://upload.wikimedia.org/wikipedia/commons/d/d4/Card_back_01.svg" class="card-img" style="width: 50px;">
-                            <div><span id="cards-left">104</span> left</div>
+                            <div><span id="seq-cards-left">104</span> left</div>
                         </div>
-                        <div id="last-discarded"></div>
+                        <div id="seq-last-discarded"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCREEN 4B: UNO Game Board -->
+    <div id="uno-screen" class="screen">
+        <div class="uno-layout">
+            
+            <div class="uno-opponents" id="uno-opponents">
+                <!-- Opponent details populated here -->
+            </div>
+
+            <div class="uno-table">
+                <div class="turn-box" style="margin-bottom: 20px;">
+                    <h2 id="uno-turn-indicator">Waiting...</h2>
+                    <button class="rematch-btn" style="display: none;">Play Rematch</button>
+                </div>
+                
+                <div class="uno-center-piles">
+                    <div class="uno-deck" id="uno-draw-pile">
+                        <div class="uno-card black"><div class="uno-card-inner"><span class="uno-card-value">UNO</span></div></div>
+                        <span>Draw</span>
+                    </div>
+                    <div class="uno-discard" id="uno-discard-pile">
+                        <!-- Top card goes here -->
                     </div>
                 </div>
             </div>
 
+            <div class="uno-player-area">
+                <h3>Your Hand</h3>
+                <div id="uno-hand" class="uno-hand-grid"></div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- UNO Color Picker Modal -->
+    <div id="color-picker-modal" class="modal-overlay">
+        <div class="modal">
+            <h2>Pick a Color</h2>
+            <div class="color-options">
+                <div class="color-btn" data-color="red" style="background: #ff5252;"></div>
+                <div class="color-btn" data-color="blue" style="background: #3498db;"></div>
+                <div class="color-btn" data-color="green" style="background: #2ecc71;"></div>
+                <div class="color-btn" data-color="yellow" style="background: #f1c40f;"></div>
+            </div>
         </div>
     </div>
 
