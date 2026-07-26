@@ -3,31 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Multiplayer Sequence</title>
-    <style>
-        body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; background: #222; color: white;}
-        #board { display: grid; grid-template-columns: repeat(10, 50px); gap: 2px; margin-top: 20px; }
-        .space { width: 50px; height: 50px; background: #eee; display: flex; justify-content: center; align-items: center; cursor: pointer; border-radius: 4px; }
-        .chip { width: 40px; height: 40px; border-radius: 50%; }
-        .chip.red { background: #e74c3c; box-shadow: inset 0 0 10px #c0392b; }
-        .chip.blue { background: #3498db; box-shadow: inset 0 0 10px #2980b9; }
-        .controls { margin-top: 20px; }
-    </style>
+    <title>Professional Sequence</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>Browser Sequence</h1>
-    <div class="controls">
-        <label>Pick your team: </label>
-        <select id="teamColor">
-            <option value="red">Red Team</option>
-            <option value="blue">Blue Team</option>
-        </select>
+    <!-- LANDING PAGE -->
+    <div id="landing-page" class="screen active">
+        <div class="modal">
+            <h1>SEQUENCE</h1>
+            <p>Join the Game</p>
+            <input type="text" id="username" placeholder="Enter your name" required>
+            <select id="team-select">
+                <option value="red">Red Team</option>
+                <option value="blue">Blue Team</option>
+            </select>
+            <button id="join-btn">Enter Game</button>
+        </div>
     </div>
 
-    <!-- The game board goes here -->
-    <div id="board"></div>
+    <!-- GAME PAGE -->
+    <div id="game-page" class="screen">
+        <div class="header">
+            <h2>Current Turn: <span id="turn-indicator">Waiting...</span></h2>
+            <h3 id="player-info"></h3>
+        </div>
+        
+        <div id="board"></div>
+        
+        <div class="hand-container">
+            <h3>Your Hand: (Click a card, then click the board)</h3>
+            <div id="hand"></div>
+        </div>
+    </div>
 
-    <!-- Load Socket.io from a CDN -->
+    <!-- Replace with your actual server URL -->
     <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
     <script src="script.js"></script>
 </body>
