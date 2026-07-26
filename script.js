@@ -170,9 +170,9 @@ socket.on('gameState', (data) => {
         const isMyTurn = data.turnPlayer === myName;
         turnIndicator.innerText = isMyTurn ? "Your Turn!" : `${data.turnPlayer.toUpperCase()}'s Turn`;
         
-        const turnColors = { 'red': '#ff7675', 'blue': '#3b82f6', 'green': '#b8e994' };
+        const turnColors = { 'red': '#ff7675', 'blue': '#3b82f6', 'green': '#27ae60' };
         turnIndicator.style.background = turnColors[data.turnTeam] || '#444';
-        turnIndicator.style.color = data.turnTeam === 'green' ? '#333' : 'white';
+        turnIndicator.style.color = 'white';
     }
 
     // Update Scores
@@ -215,7 +215,7 @@ function renderBoard(boardState) {
 
         if (space.team) {
             const chip = document.createElement('div');
-            const teamColors = { 'red': '#ff7675', 'blue': '#3b82f6', 'green': '#b8e994' };
+            const teamColors = { 'red': '#ff7675', 'blue': '#3b82f6', 'green': '#27ae60' };
             chip.style.backgroundColor = teamColors[space.team];
             chip.style.width = "45px";
             chip.style.height = "45px";
