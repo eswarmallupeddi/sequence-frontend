@@ -1,5 +1,5 @@
 // REPLACE WITH YOUR SECURE CLOUDFLARE/ORACLE URL
-const backendUrl = "https://nickname-villas-smooth-online.trycloudflare.com"; 
+const backendUrl = "https://spec-beings-maiden-undertaken.trycloudflare.com"; 
 const socket = io(backendUrl);
 
 // Add these to check the pulse of the frontend
