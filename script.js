@@ -35,7 +35,7 @@ joinBtn.addEventListener('click', () => {
 
 function joinGame() {
     landingPage.classList.remove('active');
-    gamePage.classList.active = 'active';
+    gamePage.classList.add('active');
     gamePage.style.display = 'flex';
     
     socket.emit('joinGame', { username: myUsername, team: myTeam });
