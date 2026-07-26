@@ -103,7 +103,21 @@ socket.on('lobbyUpdate', (players) => {
 
         const playerTag = document.createElement('div');
         playerTag.className = 'player-tag';
-        playerTag.innerText = p.name + (p.name === myName ? ' (You)' : '');
+        if (p.name === myName) {
+            playerTag.innerHTML = `${p.name} (You)<br><small style="font-weight:normal; font-size: 0.8em;">(Tap to change)</small>`;
+            
+            // Allow tap/click to cycle through teams on mobile!
+            playerTag.addEventListener('click', () => {
+                const teams = ['blue', 'red', 'green'];
+                const nextTeam = teams[(teams.indexOf(p.team) + 1) % teams.length];
+                socket.emit('updateTeams', {
+                    roomId: myRoomId,
+                    updatedPlayers: [{ name: myName, team: nextTeam }]
+                });
+            });
+        } else {
+            playerTag.innerText = p.name;
+        }
         
         // Make element explicitly draggable
         playerTag.setAttribute('draggable', 'true');
