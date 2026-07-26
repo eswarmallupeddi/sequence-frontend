@@ -1,5 +1,5 @@
 // REPLACE WITH YOUR SECURE CLOUDFLARE/ORACLE URL
-const backendUrl = "https://carb-turned-ribbon-essence.trycloudflare.com"; 
+const backendUrl = "https://induced-cells-contrast-pathology.trycloudflare.com"; 
 const socket = io(backendUrl);
 
 // --- DOM Elements ---
@@ -25,7 +25,7 @@ let myName = "";
 let myRoomId = "";
 let isHost = false;
 let selectedCard = null;
-
+let isGameOver = false;
 const urlParams = new URLSearchParams(window.location.search);
 const roomFromUrl = urlParams.get('room');
 
@@ -166,10 +166,26 @@ function getCardImageUrl(cardString) {
 }
 
 socket.on('gameState', (data) => {
+    isGameOver = data.isGameOver || false;
     lobbyScreen.classList.remove('active');
     gameScreen.classList.add('active');
 
-    turnIndicator.innerText = `${data.turn.toUpperCase()}'s Turn`;
+    // Update Scores
+    if (data.scores) {
+        document.getElementById('score-red').innerText = data.scores.red;
+        document.getElementById('score-blue').innerText = data.scores.blue;
+        document.getElementById('score-green').innerText = data.scores.green;
+    }
+
+    if (isGameOver) {
+        turnIndicator.innerText = "GAME OVER";
+        turnIndicator.style.background = "#222";
+    } else {
+        turnIndicator.innerText = `${data.turn.toUpperCase()}'s Turn`;
+        const turnColors = { 'red': '#ff7675', 'blue': '#3b82f6', 'green': '#b8e994' };
+        turnIndicator.style.background = turnColors[data.turn] || '#444';
+        turnIndicator.style.color = data.turn === 'green' ? '#333' : 'white';
+    }
     if (data.cardsLeft !== undefined) cardsLeftEl.innerText = data.cardsLeft;
     
     if (data.lastDiscard) {
@@ -217,6 +233,7 @@ function renderBoard(boardState) {
         }
 
         div.addEventListener('click', () => {
+            if (isGameOver) return alert("The game is over! No more moves allowed.");
             if (!selectedCard) return alert("Select a card from your hand first!");
             socket.emit('playMove', { roomId: myRoomId, username: myName, boardIndex: index, cardPlayed: selectedCard });
         });
