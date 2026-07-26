@@ -1,15 +1,9 @@
 * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-body { 
-    margin: 0; background-color: #2b323c; color: white; display: flex; 
-    justify-content: center; align-items: center; min-height: 100vh; padding-bottom: 50px; 
-}
-
+body { margin: 0; background-color: #2b323c; color: white; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding-bottom: 50px; }
 .screen { display: none; width: 100%; }
 .screen.active { display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-
 .modal { background: #3b4252; padding: 30px; border-radius: 12px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); width: 90%; max-width: 500px; }
 .lobby-modal { max-width: 800px; }
-
 input[type="text"] { width: 80%; padding: 12px; margin: 10px 0; border: none; border-radius: 6px; font-size: 16px; }
 button { background: #0de0d8; border: none; padding: 12px 25px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 16px; margin: 5px; color: #333; }
 button:hover { background: #0bc4bd; }
@@ -17,13 +11,13 @@ button:hover { background: #0bc4bd; }
 .rematch-btn { width: 100%; margin-top: 10px; padding: 10px; background: #0de0d8; border-radius: 6px; color: #333; }
 
 /* Landing Page */
-.game-cards { display: flex; gap: 20px; justify-content: center; margin-top: 20px; }
+.game-cards { display: flex; gap: 20px; justify-content: center; margin-top: 20px; flex-wrap: wrap; }
 .game-card { background: #4c566a; padding: 20px; border-radius: 10px; cursor: pointer; transition: 0.2s; width: 200px; border: 2px solid transparent; }
 .game-card:hover { transform: translateY(-5px); border-color: #0de0d8; }
 
-/* Lobby Teams */
+/* Lobby Teams & FFA */
 .share-box { background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px; margin-bottom: 20px; }
-.teams-container { display: flex; gap: 15px; margin: 20px 0; justify-content: center; flex-wrap: wrap; }
+.teams-container, .ffa-container { display: flex; gap: 15px; margin: 20px 0; justify-content: center; flex-wrap: wrap; }
 .team-box { flex: 1; min-width: 200px; border-radius: 8px; padding: 15px; min-height: 200px; color: white; }
 .blue-team { background-color: #3b82f6; }
 .red-team { background-color: #ff7675; }
@@ -38,7 +32,6 @@ button:hover { background: #0bc4bd; }
 #board { display: grid; grid-template-columns: repeat(10, 1fr); gap: 2px; background: #0de0d8; padding: 4px; width: 100%; max-width: 75vh; aspect-ratio: 1 / 1; margin: 0 auto; border-radius: 8px; }
 .board-space { background: #fff; display: flex; justify-content: center; align-items: center; position: relative; overflow: hidden; cursor: pointer; border-radius: 4px; }
 .card-img { width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
-
 .side-panel { flex: 1; background: #2b323c; padding: 25px; border-radius: 12px; display: flex; flex-direction: column; gap: 25px; min-width: 300px; }
 .turn-box h2 { margin: 0; text-align: center; padding: 10px; border-radius: 6px; }
 .scoreboard { font-size: 1.1rem; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; }
@@ -46,13 +39,12 @@ button:hover { background: #0bc4bd; }
 .cards-grid { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-start; }
 .hand-card { width: 60px; height: 84px; cursor: pointer; border-radius: 4px; transition: 0.2s; }
 .hand-card:hover { transform: translateY(-5px); }
-
 .pile-layout { display: flex; gap: 30px; align-items: center; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; }
 .deck-box { text-align: center; font-size: 0.9rem; }
 #seq-last-discarded { display: flex; gap: 5px; }
 .discarded-card { width: 45px; height: 63px; border-radius: 4px; }
 
-/* UNO Layout & CSS Cards */
+/* Color Match Layout */
 .uno-layout { display: flex; flex-direction: column; width: 100%; max-width: 1200px; padding: 20px; gap: 30px; height: 90vh; }
 .uno-opponents { display: flex; justify-content: center; gap: 20px; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; }
 .uno-opponent { text-align: center; background: #3b4252; padding: 10px 20px; border-radius: 8px; font-weight: bold; }
@@ -63,7 +55,7 @@ button:hover { background: #0bc4bd; }
 .uno-player-area { background: rgba(0,0,0,0.2); padding: 20px; border-radius: 8px; text-align: center; }
 .uno-hand-grid { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 15px; }
 
-/* CSS UNO Card Generator */
+/* CSS Color Match Cards */
 .uno-card { width: 80px; height: 120px; border-radius: 8px; border: 5px solid white; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 32px; box-shadow: 0 4px 8px rgba(0,0,0,0.4); position: relative; user-select: none; cursor: pointer; transition: 0.2s; }
 .uno-card:hover { transform: translateY(-10px); }
 .uno-card.red { background: #ff5252; color: #ff5252; }
@@ -75,17 +67,37 @@ button:hover { background: #0bc4bd; }
 .uno-card-value { transform: skewY(10deg); text-shadow: 1px 1px 0px rgba(0,0,0,0.1); }
 .uno-card-mini { position: absolute; top: 2px; left: 4px; font-size: 14px; color: white; }
 .uno-card-mini.bottom { top: auto; bottom: 2px; left: auto; right: 4px; transform: rotate(180deg); }
-
-/* Mockup for landing page */
 .uno-card-mockup { width: 50px; height: 70px; background: #ff5252; border: 3px solid white; border-radius: 5px; margin: 0 auto 10px auto; display: flex; justify-content: center; align-items: center; }
 .uno-mockup-inner { background: white; border-radius: 50%; width: 35px; height: 50px; transform: skewY(-10deg); color: #ff5252; font-weight: bold; font-size: 12px; display: flex; justify-content: center; align-items: center; }
 
-/* Color Picker Modal */
+/* Color Picker */
 .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 100; justify-content: center; align-items: center; }
 .modal-overlay.active { display: flex; }
 .color-options { display: flex; justify-content: center; gap: 15px; margin-top: 20px; }
 .color-btn { width: 60px; height: 60px; border-radius: 50%; cursor: pointer; border: 4px solid white; transition: 0.2s; }
 .color-btn:hover { transform: scale(1.1); }
+
+/* Daadi CSS Board Geometry */
+.daadi-mockup { font-size: 2rem; margin-bottom: 10px; background: rgba(0,0,0,0.3); border-radius: 8px; padding: 10px; }
+.daadi-wrapper { position: relative; width: 100%; max-width: 600px; aspect-ratio: 1 / 1; margin: 0 auto; background: #3b4252; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); padding: 20px; }
+.daadi-line { position: absolute; border: 3px solid #d4af37; box-sizing: border-box; pointer-events: none; }
+.daadi-line.outer { top: 10%; left: 10%; width: 80%; height: 80%; }
+.daadi-line.mid { top: 30%; left: 30%; width: 40%; height: 40%; }
+.daadi-line.inner { top: 50%; left: 50%; width: 0%; height: 0%; border: none; } /* Logical center, drawn differently */
+.daadi-line.true-inner { top: 50%; left: 50%; width: 20%; height: 20%; transform: translate(-50%, -50%); border: 3px solid #d4af37; }
+.daadi-cross { position: absolute; background: #d4af37; pointer-events: none; }
+.daadi-cross.vertical { width: 3px; left: 50%; transform: translateX(-50%); }
+.daadi-cross.horizontal { height: 3px; top: 50%; transform: translateY(-50%); }
+.daadi-cross.top { top: 10%; height: 30%; }
+.daadi-cross.bottom { bottom: 10%; height: 30%; }
+.daadi-cross.left { left: 10%; width: 30%; }
+.daadi-cross.right { right: 10%; width: 30%; }
+
+.daadi-node { position: absolute; width: 36px; height: 36px; background: #222; border: 3px solid #d4af37; border-radius: 50%; transform: translate(-50%, -50%); cursor: pointer; display: flex; justify-content: center; align-items: center; font-size: 24px; transition: 0.2s; z-index: 10; }
+.daadi-node:hover { background: #444; transform: translate(-50%, -50%) scale(1.2); }
+.daadi-node.selected { border-color: #0de0d8; box-shadow: 0 0 15px #0de0d8; }
+.daadi-node.removing-target { border-color: #ff5252; box-shadow: 0 0 15px #ff5252; animation: pulse 1s infinite; }
+@keyframes pulse { 0% { transform: translate(-50%, -50%) scale(1); } 50% { transform: translate(-50%, -50%) scale(1.2); } 100% { transform: translate(-50%, -50%) scale(1); } }
 
 /* Global Footer */
 .global-footer { position: fixed; bottom: 0; left: 0; width: 100%; text-align: center; padding: 12px; font-size: 0.9rem; font-style: italic; color: #a4b0be; background: rgba(43, 50, 60, 0.95); z-index: 1000; border-top: 1px solid rgba(255,255,255,0.05); }
