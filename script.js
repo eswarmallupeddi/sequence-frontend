@@ -1,5 +1,5 @@
 // REPLACE THIS WITH YOUR SECURE CLOUDFLARE TUNNEL URL
-const backendUrl = "https://tiny-chrome-cms-students.trycloudflare.com"; 
+const backendUrl = "https://your-tunnel-url.trycloudflare.com"; 
 const socket = io(backendUrl);
 
 // --- Tracers ---
@@ -41,24 +41,20 @@ const roomFromUrl = urlParams.get('room');
 const gameFromUrl = urlParams.get('game');
 
 if (roomFromUrl && gameFromUrl) {
-    // Player used an invite link, skip landing page
     myRoomId = roomFromUrl;
     myGameType = gameFromUrl;
     landingScreen.classList.remove('active');
     nameScreen.classList.add('active');
     gameTitleDisplay.innerText = `Join ${myGameType.charAt(0).toUpperCase() + myGameType.slice(1)}`;
 } else {
-    // Player is host, show landing page
     myRoomId = Math.random().toString(36).substring(2, 9);
 }
 
-// Hub Selection
 selectSequenceBtn.addEventListener('click', () => {
     myGameType = 'sequence';
     landingScreen.classList.remove('active');
     nameScreen.classList.add('active');
     gameTitleDisplay.innerText = "Join Sequence";
-    // Update browser URL silently
     window.history.pushState({}, '', `?game=${myGameType}&room=${myRoomId}`);
 });
 
@@ -175,7 +171,6 @@ socket.on('gameState', (data) => {
         const isMyTurn = data.turnPlayer === myName;
         turnIndicator.innerText = isMyTurn ? "Your Turn!" : `${data.turnPlayer.toUpperCase()}'s Turn`;
         
-        // Match the rich green here
         const turnColors = { 'red': '#ff7675', 'blue': '#3b82f6', 'green': '#27ae60' };
         turnIndicator.style.background = turnColors[data.turnTeam] || '#444';
         turnIndicator.style.color = 'white';
@@ -188,10 +183,23 @@ socket.on('gameState', (data) => {
     }
 
     if (data.cardsLeft !== undefined) cardsLeftEl.innerText = data.cardsLeft;
-    if (data.lastDiscard) {
-        lastDiscardedEl.innerHTML = `<img src="${getCardImageUrl(data.lastDiscard)}" class="card-img" style="width: 50px;">`;
-    } else {
-        lastDiscardedEl.innerHTML = '';
+    
+    // Update the Discard Pile with the last 3 cards
+    lastDiscardedEl.innerHTML = '';
+    if (data.lastDiscards && data.lastDiscards.length > 0) {
+        data.lastDiscards.forEach((card, index) => {
+            const img = document.createElement('img');
+            img.src = getCardImageUrl(card);
+            img.className = 'discarded-card';
+            
+            // Highlight the most recent card slightly
+            if (index === data.lastDiscards.length - 1) {
+                img.style.border = "2px solid #0de0d8"; 
+                img.style.transform = "scale(1.1)";
+            }
+            
+            lastDiscardedEl.appendChild(img);
+        });
     }
 
     renderBoard(data.board);
@@ -228,8 +236,6 @@ function renderBoard(boardState) {
             chip.style.borderRadius = "50%";
             chip.style.position = "absolute";
             chip.style.boxShadow = "0 4px 6px rgba(0,0,0,0.5)";
-            
-            // Gold border for locked sequences
             chip.style.border = space.locked ? "4px solid gold" : "4px dashed white";
             div.appendChild(chip);
         }
