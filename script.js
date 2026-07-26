@@ -1,5 +1,5 @@
 // WARNING: Replace this IP with your Oracle Cloud Public IP later
-const backendUrl = "http://150.136.140.179:3000"; 
+const backendUrl = "https://powerpoint-elder-than-designation.trycloudflare.com"; 
 const socket = io(backendUrl);
 
 const boardElement = document.getElementById('board');
