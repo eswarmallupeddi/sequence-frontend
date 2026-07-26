@@ -1,5 +1,5 @@
 // REPLACE THIS WITH YOUR SECURE CLOUDFLARE TUNNEL URL
-const backendUrl = "https://seven-waiting-forwarding-betting.trycloudflare.com"; 
+const backendUrl = "https://tiny-chrome-cms-students.trycloudflare.com"; 
 const socket = io(backendUrl);
 
 // --- Tracers ---
@@ -7,15 +7,19 @@ socket.on('connect', () => console.log("🟢 SUCCESS: Frontend connected to the 
 socket.on('connect_error', (err) => console.log("🔴 ERROR: Failed to connect to server.", err));
 
 // --- DOM Elements ---
+const landingScreen = document.getElementById('landing-screen');
 const nameScreen = document.getElementById('name-screen');
 const lobbyScreen = document.getElementById('lobby-screen');
 const gameScreen = document.getElementById('game-screen');
 
+const selectSequenceBtn = document.getElementById('select-sequence');
+const gameTitleDisplay = document.getElementById('game-title-display');
 const nicknameInput = document.getElementById('nickname');
 const submitNameBtn = document.getElementById('submit-name');
 const shareLinkInput = document.getElementById('share-link');
 const copyBtn = document.getElementById('copy-btn');
 const startGameBtn = document.getElementById('start-game-btn');
+const rematchBtn = document.getElementById('rematch-btn');
 
 const boardEl = document.getElementById('board');
 const handEl = document.getElementById('hand');
@@ -26,13 +30,37 @@ const cardsLeftEl = document.getElementById('cards-left');
 // --- State Variables ---
 let myName = "";
 let myRoomId = "";
+let myGameType = "";
 let isHost = false;
 let selectedCard = null;
 let isGameOver = false;
 
+// --- URL Routing Logic ---
 const urlParams = new URLSearchParams(window.location.search);
 const roomFromUrl = urlParams.get('room');
-myRoomId = roomFromUrl ? roomFromUrl : Math.random().toString(36).substring(2, 9);
+const gameFromUrl = urlParams.get('game');
+
+if (roomFromUrl && gameFromUrl) {
+    // Player used an invite link, skip landing page
+    myRoomId = roomFromUrl;
+    myGameType = gameFromUrl;
+    landingScreen.classList.remove('active');
+    nameScreen.classList.add('active');
+    gameTitleDisplay.innerText = `Join ${myGameType.charAt(0).toUpperCase() + myGameType.slice(1)}`;
+} else {
+    // Player is host, show landing page
+    myRoomId = Math.random().toString(36).substring(2, 9);
+}
+
+// Hub Selection
+selectSequenceBtn.addEventListener('click', () => {
+    myGameType = 'sequence';
+    landingScreen.classList.remove('active');
+    nameScreen.classList.add('active');
+    gameTitleDisplay.innerText = "Join Sequence";
+    // Update browser URL silently
+    window.history.pushState({}, '', `?game=${myGameType}&room=${myRoomId}`);
+});
 
 // --- Join Lobby ---
 submitNameBtn.addEventListener('click', () => {
@@ -42,10 +70,10 @@ submitNameBtn.addEventListener('click', () => {
     nameScreen.classList.remove('active');
     lobbyScreen.classList.add('active');
 
-    const inviteUrl = `${window.location.origin}${window.location.pathname}?room=${myRoomId}`;
+    const inviteUrl = `${window.location.origin}${window.location.pathname}?game=${myGameType}&room=${myRoomId}`;
     shareLinkInput.value = inviteUrl;
 
-    socket.emit('joinRoom', { roomId: myRoomId, nickname: myName });
+    socket.emit('joinRoom', { roomId: myRoomId, nickname: myName, gameType: myGameType });
 });
 
 copyBtn.addEventListener('click', () => {
@@ -72,31 +100,23 @@ Object.keys(dropzones).forEach(teamColor => {
         zone.classList.add('drag-over'); 
     });
 
-    zone.addEventListener('dragleave', () => {
-        zone.classList.remove('drag-over');
-    });
+    zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
 
     zone.addEventListener('drop', (e) => {
         e.preventDefault();
         zone.classList.remove('drag-over');
         const playerName = e.dataTransfer.getData('text/plain');
-        socket.emit('updateTeams', {
-            roomId: myRoomId,
-            updatedPlayers: [{ name: playerName, team: teamColor }]
-        });
+        socket.emit('updateTeams', { roomId: myRoomId, updatedPlayers: [{ name: playerName, team: teamColor }] });
     });
 });
 
 socket.on('lobbyUpdate', (players) => {
-    console.log("🔵 RECEIVED LOBBY UPDATE: ", players);
     Object.values(dropzones).forEach(zone => { if(zone) zone.innerHTML = ''; });
 
     players.forEach(p => {
-        if (p.name === myName && p.isHost) {
-            isHost = true;
-            startGameBtn.style.display = "block";
-        } else if (p.name === myName && !p.isHost) {
-            startGameBtn.style.display = "none";
+        if (p.name === myName) {
+            isHost = p.isHost;
+            startGameBtn.style.display = isHost ? "block" : "none";
         }
 
         const playerTag = document.createElement('div');
@@ -107,10 +127,7 @@ socket.on('lobbyUpdate', (players) => {
             playerTag.addEventListener('click', () => {
                 const teams = ['blue', 'red', 'green'];
                 const nextTeam = teams[(teams.indexOf(p.team) + 1) % teams.length];
-                socket.emit('updateTeams', {
-                    roomId: myRoomId,
-                    updatedPlayers: [{ name: myName, team: nextTeam }]
-                });
+                socket.emit('updateTeams', { roomId: myRoomId, updatedPlayers: [{ name: myName, team: nextTeam }] });
             });
         } else {
             playerTag.innerText = p.name;
@@ -127,31 +144,18 @@ socket.on('lobbyUpdate', (players) => {
     });
 });
 
-document.querySelector('.outline-btn').addEventListener('click', () => {
-    socket.emit('randomizeTeams', { roomId: myRoomId });
-});
+document.querySelector('.outline-btn').addEventListener('click', () => socket.emit('randomizeTeams', { roomId: myRoomId }));
 
-startGameBtn.addEventListener('click', () => {
-    socket.emit('startGame', { roomId: myRoomId });
-});
+startGameBtn.addEventListener('click', () => socket.emit('startGame', { roomId: myRoomId }));
+rematchBtn.addEventListener('click', () => socket.emit('rematch', { roomId: myRoomId }));
 
 // --- Game Logic & Graphics ---
 
 function getCardImageUrl(cardString) {
     if (cardString === 'FREE') return ''; 
     const parts = cardString.split('-');
-    const suit = parts[0];
-    const rank = parts[1];
-    
-    let suitChar = '';
-    if (suit === '♠') suitChar = 'S';
-    if (suit === '♥') suitChar = 'H';
-    if (suit === '♣') suitChar = 'C';
-    if (suit === '♦') suitChar = 'D';
-    
-    let rankChar = rank;
-    if (rank === '10') rankChar = '0';
-    
+    let suitChar = parts[0] === '♠' ? 'S' : parts[0] === '♥' ? 'H' : parts[0] === '♣' ? 'C' : 'D';
+    let rankChar = parts[1] === '10' ? '0' : parts[1];
     return `https://deckofcardsapi.com/static/img/${rankChar}${suitChar}.png`;
 }
 
@@ -161,31 +165,33 @@ socket.on('gameState', (data) => {
 
     isGameOver = data.isGameOver || false;
 
-    // Update Turn Indicator with specific player name
     if (isGameOver) {
         turnIndicator.innerText = "GAME OVER";
         turnIndicator.style.background = "#222";
         turnIndicator.style.color = "white";
+        rematchBtn.style.display = "block";
     } else {
+        rematchBtn.style.display = "none";
         const isMyTurn = data.turnPlayer === myName;
         turnIndicator.innerText = isMyTurn ? "Your Turn!" : `${data.turnPlayer.toUpperCase()}'s Turn`;
         
+        // Match the rich green here
         const turnColors = { 'red': '#ff7675', 'blue': '#3b82f6', 'green': '#27ae60' };
         turnIndicator.style.background = turnColors[data.turnTeam] || '#444';
         turnIndicator.style.color = 'white';
     }
 
-    // Update Scores
     if (data.scores) {
         document.getElementById('score-red').innerText = data.scores.red;
         document.getElementById('score-blue').innerText = data.scores.blue;
         document.getElementById('score-green').innerText = data.scores.green;
     }
 
-    // Update Deck & Discard
     if (data.cardsLeft !== undefined) cardsLeftEl.innerText = data.cardsLeft;
     if (data.lastDiscard) {
         lastDiscardedEl.innerHTML = `<img src="${getCardImageUrl(data.lastDiscard)}" class="card-img" style="width: 50px;">`;
+    } else {
+        lastDiscardedEl.innerHTML = '';
     }
 
     renderBoard(data.board);
@@ -221,18 +227,15 @@ function renderBoard(boardState) {
             chip.style.height = "45px";
             chip.style.borderRadius = "50%";
             chip.style.position = "absolute";
-            chip.style.border = "4px dashed white";
             chip.style.boxShadow = "0 4px 6px rgba(0,0,0,0.5)";
-            if (space.locked) {
-                chip.style.border = "4px solid gold"; // Solid gold ring for protected chips
-            } else {
-                chip.style.border = "4px dashed white"; // Normal chips
-            }
+            
+            // Gold border for locked sequences
+            chip.style.border = space.locked ? "4px solid gold" : "4px dashed white";
             div.appendChild(chip);
         }
 
         div.addEventListener('click', () => {
-            if (isGameOver) return alert("The game is over! No more moves allowed.");
+            if (isGameOver) return alert("The game is over! Play a rematch.");
             if (!selectedCard) return alert("Select a card from your hand first!");
             socket.emit('playMove', { roomId: myRoomId, username: myName, boardIndex: index, cardPlayed: selectedCard });
         });
@@ -253,7 +256,6 @@ function renderHand(handArray) {
                 c.style.border = "none";
                 c.style.transform = "none";
             });
-            
             img.style.border = "3px solid #0de0d8";
             img.style.transform = "translateY(-10px)";
             selectedCard = card;
