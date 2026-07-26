@@ -1,6 +1,10 @@
-// REPLACE WITH YOUR SECURE CLOUDFLARE/ORACLE URL
-const backendUrl = "https://induced-cells-contrast-pathology.trycloudflare.com"; 
+// REPLACE THIS WITH YOUR SECURE CLOUDFLARE TUNNEL URL
+const backendUrl = "https://anthropology-traveller-split-noticed.trycloudflare.com"; 
 const socket = io(backendUrl);
+
+// --- Tracers ---
+socket.on('connect', () => console.log("🟢 SUCCESS: Frontend connected to the server!"));
+socket.on('connect_error', (err) => console.log("🔴 ERROR: Failed to connect to server.", err));
 
 // --- DOM Elements ---
 const nameScreen = document.getElementById('name-screen');
@@ -9,7 +13,6 @@ const gameScreen = document.getElementById('game-screen');
 
 const nicknameInput = document.getElementById('nickname');
 const submitNameBtn = document.getElementById('submit-name');
-
 const shareLinkInput = document.getElementById('share-link');
 const copyBtn = document.getElementById('copy-btn');
 const startGameBtn = document.getElementById('start-game-btn');
@@ -26,14 +29,10 @@ let myRoomId = "";
 let isHost = false;
 let selectedCard = null;
 let isGameOver = false;
+
 const urlParams = new URLSearchParams(window.location.search);
 const roomFromUrl = urlParams.get('room');
-
-if (roomFromUrl) {
-    myRoomId = roomFromUrl;
-} else {
-    myRoomId = Math.random().toString(36).substring(2, 9);
-}
+myRoomId = roomFromUrl ? roomFromUrl : Math.random().toString(36).substring(2, 9);
 
 // --- Join Lobby ---
 submitNameBtn.addEventListener('click', () => {
@@ -70,7 +69,7 @@ Object.keys(dropzones).forEach(teamColor => {
     zone.addEventListener('dragover', (e) => {
         e.preventDefault(); 
         e.dataTransfer.dropEffect = 'move';
-        zone.classList.add('drag-over'); // Visual highlight
+        zone.classList.add('drag-over'); 
     });
 
     zone.addEventListener('dragleave', () => {
@@ -80,9 +79,7 @@ Object.keys(dropzones).forEach(teamColor => {
     zone.addEventListener('drop', (e) => {
         e.preventDefault();
         zone.classList.remove('drag-over');
-        
         const playerName = e.dataTransfer.getData('text/plain');
-        
         socket.emit('updateTeams', {
             roomId: myRoomId,
             updatedPlayers: [{ name: playerName, team: teamColor }]
@@ -91,6 +88,7 @@ Object.keys(dropzones).forEach(teamColor => {
 });
 
 socket.on('lobbyUpdate', (players) => {
+    console.log("🔵 RECEIVED LOBBY UPDATE: ", players);
     Object.values(dropzones).forEach(zone => { if(zone) zone.innerHTML = ''; });
 
     players.forEach(p => {
@@ -103,10 +101,9 @@ socket.on('lobbyUpdate', (players) => {
 
         const playerTag = document.createElement('div');
         playerTag.className = 'player-tag';
+        
         if (p.name === myName) {
             playerTag.innerHTML = `${p.name} (You)<br><small style="font-weight:normal; font-size: 0.8em;">(Tap to change)</small>`;
-            
-            // Allow tap/click to cycle through teams on mobile!
             playerTag.addEventListener('click', () => {
                 const teams = ['blue', 'red', 'green'];
                 const nextTeam = teams[(teams.indexOf(p.team) + 1) % teams.length];
@@ -119,9 +116,7 @@ socket.on('lobbyUpdate', (players) => {
             playerTag.innerText = p.name;
         }
         
-        // Make element explicitly draggable
         playerTag.setAttribute('draggable', 'true');
-        
         playerTag.addEventListener('dragstart', (e) => {
             e.dataTransfer.setData('text/plain', p.name);
             e.dataTransfer.effectAllowed = 'move';
@@ -142,23 +137,18 @@ startGameBtn.addEventListener('click', () => {
 
 // --- Game Logic & Graphics ---
 
-// Maps text cards to high-quality images
 function getCardImageUrl(cardString) {
-    if (cardString === 'FREE') return ''; // We handle FREE spaces in CSS
-    
-    // Parse our string (e.g., '♠-9' or '♥-10')
+    if (cardString === 'FREE') return ''; 
     const parts = cardString.split('-');
     const suit = parts[0];
     const rank = parts[1];
     
-    // Map suits for the CDN
     let suitChar = '';
     if (suit === '♠') suitChar = 'S';
     if (suit === '♥') suitChar = 'H';
     if (suit === '♣') suitChar = 'C';
     if (suit === '♦') suitChar = 'D';
     
-    // Map ranks for the CDN (10 is '0')
     let rankChar = rank;
     if (rank === '10') rankChar = '0';
     
@@ -166,9 +156,24 @@ function getCardImageUrl(cardString) {
 }
 
 socket.on('gameState', (data) => {
-    isGameOver = data.isGameOver || false;
     lobbyScreen.classList.remove('active');
     gameScreen.classList.add('active');
+
+    isGameOver = data.isGameOver || false;
+
+    // Update Turn Indicator with specific player name
+    if (isGameOver) {
+        turnIndicator.innerText = "GAME OVER";
+        turnIndicator.style.background = "#222";
+        turnIndicator.style.color = "white";
+    } else {
+        const isMyTurn = data.turnPlayer === myName;
+        turnIndicator.innerText = isMyTurn ? "Your Turn!" : `${data.turnPlayer.toUpperCase()}'s Turn`;
+        
+        const turnColors = { 'red': '#ff7675', 'blue': '#3b82f6', 'green': '#b8e994' };
+        turnIndicator.style.background = turnColors[data.turnTeam] || '#444';
+        turnIndicator.style.color = data.turnTeam === 'green' ? '#333' : 'white';
+    }
 
     // Update Scores
     if (data.scores) {
@@ -177,17 +182,8 @@ socket.on('gameState', (data) => {
         document.getElementById('score-green').innerText = data.scores.green;
     }
 
-    if (isGameOver) {
-        turnIndicator.innerText = "GAME OVER";
-        turnIndicator.style.background = "#222";
-    } else {
-        turnIndicator.innerText = `${data.turn.toUpperCase()}'s Turn`;
-        const turnColors = { 'red': '#ff7675', 'blue': '#3b82f6', 'green': '#b8e994' };
-        turnIndicator.style.background = turnColors[data.turn] || '#444';
-        turnIndicator.style.color = data.turn === 'green' ? '#333' : 'white';
-    }
+    // Update Deck & Discard
     if (data.cardsLeft !== undefined) cardsLeftEl.innerText = data.cardsLeft;
-    
     if (data.lastDiscard) {
         lastDiscardedEl.innerHTML = `<img src="${getCardImageUrl(data.lastDiscard)}" class="card-img" style="width: 50px;">`;
     }
@@ -211,14 +207,12 @@ function renderBoard(boardState) {
             div.style.background = '#ff477e';
             div.innerHTML = '<span style="color:white; font-weight:bold;">FREE</span>';
         } else {
-            // Use real card images
             const img = document.createElement('img');
             img.src = getCardImageUrl(space.card);
             img.className = 'card-img';
             div.appendChild(img);
         }
 
-        // Render chips
         if (space.team) {
             const chip = document.createElement('div');
             const teamColors = { 'red': '#ff7675', 'blue': '#3b82f6', 'green': '#b8e994' };
@@ -250,13 +244,11 @@ function renderHand(handArray) {
         img.className = 'hand-card';
         
         img.addEventListener('click', () => {
-            // Remove highlight from others
             Array.from(handEl.children).forEach(c => {
                 c.style.border = "none";
                 c.style.transform = "none";
             });
             
-            // Highlight selected
             img.style.border = "3px solid #0de0d8";
             img.style.transform = "translateY(-10px)";
             selectedCard = card;
