@@ -2,51 +2,76 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Sequence Online</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Hub & Sequence</title>
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
 </head>
 <body>
-    <!-- SCREEN 1: Choose a Name (image_82309f.png) -->
-    <div id="name-screen" class="screen active">
-        <div class="panel">
-            <h1 class="cyan-text">Choose a name for yourself</h1>
-            <input type="text" id="nickname" placeholder="Nickname">
-            <button id="submit-name" class="pink-btn">Submit</button>
+
+    <!-- SCREEN 1: Game Hub / Landing Page -->
+    <div id="landing-screen" class="screen active">
+        <div class="modal">
+            <h1>Welcome to the Game Hub</h1>
+            <p>Select a game to start playing with your friends!</p>
+            
+            <div class="game-cards">
+                <div class="game-card" id="select-sequence">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/d/d4/Card_back_01.svg" alt="Sequence" width="80">
+                    <h2>Sequence</h2>
+                    <p>Classic board & card game.</p>
+                </div>
+                <div class="game-card disabled">
+                    <h2>Coming Soon</h2>
+                    <p>More games are on the way!</p>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- SCREEN 2: Lobby & Settings (image_823134.png) -->
+    <!-- SCREEN 2: Enter Name -->
+    <div id="name-screen" class="screen">
+        <div class="modal">
+            <h1 id="game-title-display">Join Game</h1>
+            <input type="text" id="nickname" placeholder="Enter your nickname..." autocomplete="off">
+            <button id="submit-name">Enter Lobby</button>
+        </div>
+    </div>
+
+    <!-- SCREEN 3: Lobby -->
     <div id="lobby-screen" class="screen">
-        <div class="panel wide">
-            <h2 class="cyan-text">Share the link of this game with others!</h2>
+        <div class="modal lobby-modal">
+            <h1>Lobby</h1>
             <div class="share-box">
+                <p>Share this link to invite others:</p>
                 <input type="text" id="share-link" readonly>
                 <button id="copy-btn">Copy</button>
             </div>
-
-            <h2 class="cyan-text">Settings</h2>
-            <div class="settings-grid">
-                <!-- Sliders and Dropdowns go here -->
-                <label>Time for a player to make a move (seconds)</label>
-                <input type="range" min="15" max="120" value="60">
-            </div>
-
-            <h2 class="cyan-text">Team members</h2>
-            <button class="outline-btn">Randomize Teams</button>
-            <p class="subtitle">Set the team members in each area. You can drag and drop the players to change their teams!</p>
             
-            <div class="teams-container">
-                <div class="team-box blue-team" id="blue-dropzone"></div>
-                <div class="team-box red-team" id="red-dropzone"></div>
-                <div class="team-box green-team" id="green-dropzone"></div>
+            <div class="lobby-controls">
+                <button class="outline-btn">Randomize Teams</button>
             </div>
 
-            <button id="start-game-btn" class="pink-btn large">Start the Game</button>
+            <div class="teams-container">
+                <div class="team-box blue-team">
+                    <h3>Blue Team</h3>
+                    <div id="blue-dropzone" class="dropzone"></div>
+                </div>
+                <div class="team-box red-team">
+                    <h3>Red Team</h3>
+                    <div id="red-dropzone" class="dropzone"></div>
+                </div>
+                <div class="team-box green-team">
+                    <h3>Green Team</h3>
+                    <div id="green-dropzone" class="dropzone"></div>
+                </div>
+            </div>
+
+            <button id="start-game-btn" style="display: none;">Start Game</button>
         </div>
     </div>
 
-    <!-- SCREEN 3: Game Board (image_822d15.jpg) -->
-    <!-- SCREEN 3: Game Board -->
+    <!-- SCREEN 4: Game Board -->
     <div id="game-screen" class="screen">
         <div class="game-layout">
             
@@ -59,6 +84,7 @@
             <div class="side-panel">
                 <div class="turn-box">
                     <h2 id="turn-indicator">Waiting...</h2>
+                    <button id="rematch-btn" style="display: none; width: 100%; margin-top: 10px; padding: 10px; background: #0de0d8; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; color: #333;">Play Rematch</button>
                 </div>
 
                 <div class="scoreboard">
@@ -66,7 +92,7 @@
                     <div id="score-display">
                         <span style="color:#ff7675;">Red: <b id="score-red">0</b></span> | 
                         <span style="color:#3b82f6;">Blue: <b id="score-blue">0</b></span> | 
-                        <span style="color:#b8e994; color:#333;">Green: <b id="score-green">0</b></span>
+                        <span style="color:#27ae60; color:white;">Green: <b id="score-green">0</b></span>
                     </div>
                 </div>
                 
@@ -90,7 +116,6 @@
         </div>
     </div>
 
-    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
