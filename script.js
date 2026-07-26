@@ -2,6 +2,20 @@
 const backendUrl = "https://nickname-villas-smooth-online.trycloudflare.com"; 
 const socket = io(backendUrl);
 
+// Add these to check the pulse of the frontend
+socket.on('connect', () => {
+    console.log("🟢 SUCCESS: Frontend connected to the server!");
+});
+
+socket.on('connect_error', (err) => {
+    console.log("🔴 ERROR: Failed to connect to server.", err);
+});
+
+socket.on('lobbyUpdate', (players) => {
+    console.log("🔵 RECEIVED LOBBY UPDATE: ", players);
+    // ... (keep your existing lobbyUpdate code here)
+});
+
 // --- DOM Elements ---
 const nameScreen = document.getElementById('name-screen');
 const lobbyScreen = document.getElementById('lobby-screen');
