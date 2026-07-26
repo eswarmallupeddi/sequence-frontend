@@ -1,13 +1,7 @@
 * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
 body { 
-    margin: 0; 
-    background-color: #2b323c; 
-    color: white; 
-    display: flex; 
-    justify-content: center; 
-    align-items: center; 
-    min-height: 100vh; 
-    padding-bottom: 40px; /* Space for the footer */
+    margin: 0; background-color: #2b323c; color: white; display: flex; 
+    justify-content: center; align-items: center; min-height: 100vh; padding-bottom: 50px; 
 }
 
 .screen { display: none; width: 100%; }
@@ -20,13 +14,12 @@ input[type="text"] { width: 80%; padding: 12px; margin: 10px 0; border: none; bo
 button { background: #0de0d8; border: none; padding: 12px 25px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 16px; margin: 5px; color: #333; }
 button:hover { background: #0bc4bd; }
 .outline-btn { background: transparent; border: 2px solid #0de0d8; color: #0de0d8; }
+.rematch-btn { width: 100%; margin-top: 10px; padding: 10px; background: #0de0d8; border-radius: 6px; color: #333; }
 
-/* Landing Page Styles */
+/* Landing Page */
 .game-cards { display: flex; gap: 20px; justify-content: center; margin-top: 20px; }
 .game-card { background: #4c566a; padding: 20px; border-radius: 10px; cursor: pointer; transition: 0.2s; width: 200px; border: 2px solid transparent; }
 .game-card:hover { transform: translateY(-5px); border-color: #0de0d8; }
-.game-card.disabled { opacity: 0.5; cursor: not-allowed; }
-.game-card.disabled:hover { transform: none; border-color: transparent; }
 
 /* Lobby Teams */
 .share-box { background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px; margin-bottom: 20px; }
@@ -35,42 +28,66 @@ button:hover { background: #0bc4bd; }
 .blue-team { background-color: #3b82f6; }
 .red-team { background-color: #ff7675; }
 .green-team { background-color: #27ae60; } 
-
 .dropzone { min-height: 150px; background: rgba(255,255,255,0.1); border-radius: 6px; padding: 10px; display: flex; flex-direction: column; gap: 10px; }
 .drag-over { filter: brightness(1.3); border: 3px dashed #fff !important; }
-
 .player-tag { background: rgba(0, 0, 0, 0.4); color: white; padding: 10px; border-radius: 6px; font-weight: bold; cursor: grab; text-align: center; user-select: none; }
-.player-tag:active { cursor: grabbing; }
 
-/* Game Layout */
+/* Sequence Layout */
 .game-layout { display: flex; flex-direction: row; gap: 30px; width: 100%; max-width: 1400px; padding: 20px; align-items: flex-start; margin-top: 20px; }
 .board-container { flex: 2; display: flex; justify-content: center; }
-
-#board { display: grid; grid-template-columns: repeat(10, 1fr); gap: 2px; background: #0de0d8; padding: 4px; width: 100%; max-width: 75vh; aspect-ratio: 1 / 1; margin: 0 auto; border-radius: 8px; box-shadow: 0 10px 20px rgba(0,0,0,0.4); }
+#board { display: grid; grid-template-columns: repeat(10, 1fr); gap: 2px; background: #0de0d8; padding: 4px; width: 100%; max-width: 75vh; aspect-ratio: 1 / 1; margin: 0 auto; border-radius: 8px; }
 .board-space { background: #fff; display: flex; justify-content: center; align-items: center; position: relative; overflow: hidden; cursor: pointer; border-radius: 4px; }
 .card-img { width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
 
-/* Side Panel */
-.side-panel { flex: 1; background: #2b323c; padding: 25px; border-radius: 12px; display: flex; flex-direction: column; gap: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.4); min-width: 300px; }
-.turn-box h2 { margin: 0; text-align: center; padding: 10px; border-radius: 6px; transition: 0.3s; }
+.side-panel { flex: 1; background: #2b323c; padding: 25px; border-radius: 12px; display: flex; flex-direction: column; gap: 25px; min-width: 300px; }
+.turn-box h2 { margin: 0; text-align: center; padding: 10px; border-radius: 6px; }
 .scoreboard { font-size: 1.1rem; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; }
 #score-display { margin-top: 10px; display: flex; justify-content: space-between; font-weight: bold; }
-
-/* Fixed Hand Layout */
 .cards-grid { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-start; }
-.hand-card { width: 60px; height: 84px; cursor: pointer; border-radius: 4px; transition: 0.2s; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+.hand-card { width: 60px; height: 84px; cursor: pointer; border-radius: 4px; transition: 0.2s; }
 .hand-card:hover { transform: translateY(-5px); }
 
-/* History Discard Pile */
 .pile-layout { display: flex; gap: 30px; align-items: center; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; }
 .deck-box { text-align: center; font-size: 0.9rem; }
-#last-discarded { display: flex; gap: 5px; align-items: center; }
-.discarded-card { width: 45px; height: 63px; border-radius: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.4); }
+#seq-last-discarded { display: flex; gap: 5px; }
+.discarded-card { width: 45px; height: 63px; border-radius: 4px; }
+
+/* UNO Layout & CSS Cards */
+.uno-layout { display: flex; flex-direction: column; width: 100%; max-width: 1200px; padding: 20px; gap: 30px; height: 90vh; }
+.uno-opponents { display: flex; justify-content: center; gap: 20px; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; }
+.uno-opponent { text-align: center; background: #3b4252; padding: 10px 20px; border-radius: 8px; font-weight: bold; }
+.uno-table { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+.uno-center-piles { display: flex; gap: 40px; align-items: center; }
+.uno-deck { text-align: center; cursor: pointer; transition: 0.2s; }
+.uno-deck:hover { transform: translateY(-5px); }
+.uno-player-area { background: rgba(0,0,0,0.2); padding: 20px; border-radius: 8px; text-align: center; }
+.uno-hand-grid { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 15px; }
+
+/* CSS UNO Card Generator */
+.uno-card { width: 80px; height: 120px; border-radius: 8px; border: 5px solid white; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 32px; box-shadow: 0 4px 8px rgba(0,0,0,0.4); position: relative; user-select: none; cursor: pointer; transition: 0.2s; }
+.uno-card:hover { transform: translateY(-10px); }
+.uno-card.red { background: #ff5252; color: #ff5252; }
+.uno-card.blue { background: #3498db; color: #3498db; }
+.uno-card.green { background: #2ecc71; color: #2ecc71; }
+.uno-card.yellow { background: #f1c40f; color: #f1c40f; }
+.uno-card.black { background: #222; color: #222; }
+.uno-card-inner { background: white; border-radius: 50%; width: 60px; height: 90px; display: flex; justify-content: center; align-items: center; transform: skewY(-10deg); box-shadow: inset 0 0 5px rgba(0,0,0,0.2); }
+.uno-card-value { transform: skewY(10deg); text-shadow: 1px 1px 0px rgba(0,0,0,0.1); }
+.uno-card-mini { position: absolute; top: 2px; left: 4px; font-size: 14px; color: white; }
+.uno-card-mini.bottom { top: auto; bottom: 2px; left: auto; right: 4px; transform: rotate(180deg); }
+
+/* Mockup for landing page */
+.uno-card-mockup { width: 50px; height: 70px; background: #ff5252; border: 3px solid white; border-radius: 5px; margin: 0 auto 10px auto; display: flex; justify-content: center; align-items: center; }
+.uno-mockup-inner { background: white; border-radius: 50%; width: 35px; height: 50px; transform: skewY(-10deg); color: #ff5252; font-weight: bold; font-size: 12px; display: flex; justify-content: center; align-items: center; }
+
+/* Color Picker Modal */
+.modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 100; justify-content: center; align-items: center; }
+.modal-overlay.active { display: flex; }
+.color-options { display: flex; justify-content: center; gap: 15px; margin-top: 20px; }
+.color-btn { width: 60px; height: 60px; border-radius: 50%; cursor: pointer; border: 4px solid white; transition: 0.2s; }
+.color-btn:hover { transform: scale(1.1); }
 
 /* Global Footer */
 .global-footer { position: fixed; bottom: 0; left: 0; width: 100%; text-align: center; padding: 12px; font-size: 0.9rem; font-style: italic; color: #a4b0be; background: rgba(43, 50, 60, 0.95); z-index: 1000; border-top: 1px solid rgba(255,255,255,0.05); }
 
-@media (max-width: 900px) {
-    .game-layout { flex-direction: column; align-items: center; }
-    .side-panel { width: 100%; max-width: 600px; }
-}
+@media (max-width: 900px) { .game-layout { flex-direction: column; align-items: center; } .side-panel { width: 100%; max-width: 600px; } }
