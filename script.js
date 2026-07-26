@@ -223,6 +223,11 @@ function renderBoard(boardState) {
             chip.style.position = "absolute";
             chip.style.border = "4px dashed white";
             chip.style.boxShadow = "0 4px 6px rgba(0,0,0,0.5)";
+            if (space.locked) {
+                chip.style.border = "4px solid gold"; // Solid gold ring for protected chips
+            } else {
+                chip.style.border = "4px dashed white"; // Normal chips
+            }
             div.appendChild(chip);
         }
 
