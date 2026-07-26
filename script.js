@@ -1,5 +1,5 @@
 // WARNING: Replace this IP with your Oracle Cloud Public IP later
-const backendUrl = "http://YOUR_ORACLE_IP:3000"; 
+const backendUrl = "http://150.136.140.179:3000"; 
 const socket = io(backendUrl);
 
 const boardElement = document.getElementById('board');
