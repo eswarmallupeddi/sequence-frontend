@@ -4,10 +4,13 @@ const socket = io(backendUrl);
 
 // DOM Elements
 const landingPage = document.getElementById('landing-page');
+const lobbyPage = document.getElementById('lobby-page'); // New
 const gamePage = document.getElementById('game-page');
 const joinBtn = document.getElementById('join-btn');
+const startGameBtn = document.getElementById('start-game-btn'); // New
 const usernameInput = document.getElementById('username');
 const teamSelect = document.getElementById('team-select');
+const playerList = document.getElementById('player-list'); // New
 const boardEl = document.getElementById('board');
 const handEl = document.getElementById('hand');
 const turnIndicator = document.getElementById('turn-indicator');
@@ -17,9 +20,8 @@ let myUsername = localStorage.getItem('sequence_username') || '';
 let myTeam = localStorage.getItem('sequence_team') || '';
 let selectedCard = null;
 
-// Reconnection Logic: If they refreshed, instantly bypass landing page
 if (myUsername && myTeam) {
-    joinGame();
+    joinGame(); // Auto-reconnect if they refresh
 }
 
 joinBtn.addEventListener('click', () => {
@@ -27,7 +29,6 @@ joinBtn.addEventListener('click', () => {
     myTeam = teamSelect.value;
     if (!myUsername) return alert("Please enter a name");
     
-    // Save to local storage to survive page refreshes
     localStorage.setItem('sequence_username', myUsername);
     localStorage.setItem('sequence_team', myTeam);
     joinGame();
@@ -35,15 +36,34 @@ joinBtn.addEventListener('click', () => {
 
 function joinGame() {
     landingPage.classList.remove('active');
-    gamePage.classList.add('active');
-    gamePage.style.display = 'flex';
+    lobbyPage.classList.add('active'); // Send to lobby first
     
     socket.emit('joinGame', { username: myUsername, team: myTeam });
-    playerInfo.innerText = `${myUsername} - ${myTeam.toUpperCase()} TEAM`;
 }
 
-// Render the game state from the server
+// Render the Lobby
+socket.on('lobbyUpdate', (players) => {
+    playerList.innerHTML = '';
+    players.forEach(p => {
+        const li = document.createElement('li');
+        li.innerText = `${p.name} - ${p.team.toUpperCase()} TEAM`;
+        li.style.color = p.team === 'red' ? '#d32f2f' : '#1e88e5';
+        li.style.fontWeight = 'bold';
+        playerList.appendChild(li);
+    });
+});
+
+// Start the Game
+startGameBtn.addEventListener('click', () => {
+    socket.emit('startGame');
+});
+
+// Render the Game State (Fires when someone clicks Start Game)
 socket.on('gameState', (data) => {
+    lobbyPage.classList.remove('active');
+    gamePage.classList.add('active'); // Fixed typo here!
+    
+    playerInfo.innerText = `${myUsername} - ${myTeam.toUpperCase()} TEAM`;
     renderBoard(data.board);
     renderHand(data.hand);
     
@@ -51,18 +71,8 @@ socket.on('gameState', (data) => {
     turnIndicator.style.background = data.turn === 'red' ? '#d32f2f' : '#1e88e5';
     turnIndicator.style.color = 'white';
     
-    // Clear selection
     selectedCard = null;
 });
-
-socket.on('gameOver', (winnerTeam) => {
-    alert(`GAME OVER! The ${winnerTeam.toUpperCase()} team has formed a Sequence!`);
-});
-
-function getSuitColorClass(cardString) {
-    if (cardString.includes('♥') || cardString.includes('♦')) return 'red-suit';
-    return 'black-suit';
-}
 
 function renderBoard(boardState) {
     boardEl.innerHTML = '';
