@@ -116,3 +116,53 @@ input[type="text"] { width: 100%; padding: 15px; border-radius: 8px; border: non
     margin-top: 15px;
     padding-bottom: 20px;
 }
+/* --- New Side-by-Side Layout --- */
+.game-layout {
+    display: flex;
+    flex-direction: row;
+    gap: 30px;
+    width: 100%;
+    max-width: 1400px;
+    padding: 20px;
+    align-items: flex-start;
+}
+
+.board-container {
+    flex: 2;
+    display: flex;
+    justify-content: center;
+}
+
+.side-panel {
+    flex: 1;
+    background: #2b323c;
+    padding: 25px;
+    border-radius: 12px;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    min-width: 300px;
+}
+
+.turn-box h2 { margin: 0; text-align: center; padding: 10px; border-radius: 6px; }
+.scoreboard { font-size: 1.1rem; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; }
+#score-display { margin-top: 10px; display: flex; justify-content: space-between; font-weight: bold; }
+
+/* Group hand cards in a grid so they fit the side panel */
+.cards-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+.pile-layout { display: flex; gap: 30px; align-items: center; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; }
+.deck-box { text-align: center; font-size: 0.9rem; }
+
+/* Stack on smaller screens (iPads, Phones) */
+@media (max-width: 900px) {
+    .game-layout { flex-direction: column; align-items: center; }
+    .side-panel { width: 100%; max-width: 600px; }
+    .cards-grid { grid-template-columns: repeat(4, 1fr); }
+}
