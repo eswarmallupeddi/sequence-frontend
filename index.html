@@ -46,26 +46,47 @@
     </div>
 
     <!-- SCREEN 3: Game Board (image_822d15.jpg) -->
+    <!-- SCREEN 3: Game Board -->
     <div id="game-screen" class="screen">
-        <div class="game-header">
-            <span id="turn-indicator">Waiting to start...</span>
-        </div>
-        
-        <div id="board" class="sequence-grid"></div>
-        
-        <div class="game-footer">
-            <div id="hand" class="cards-container"></div>
-            <div class="scoreboard">
-                <table>
-                    <tr><th>Goal: 2</th><th>Red</th><th>Blue</th></tr>
-                    <tr><td>Current:</td><td id="score-red">0</td><td id="score-blue">0</td></tr>
-                </table>
+        <div class="game-layout">
+            
+            <!-- Left Side: The Board -->
+            <div class="board-container">
+                <div id="board"></div>
             </div>
-            <div class="discard-pile">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/d/d4/Card_back_01.svg" alt="Deck" width="60">
-                <span id="cards-left">90</span>
-                <div id="last-discarded"></div>
+            
+            <!-- Right Side: Side Panel -->
+            <div class="side-panel">
+                <div class="turn-box">
+                    <h2 id="turn-indicator">Waiting...</h2>
+                </div>
+
+                <div class="scoreboard">
+                    <h3>Sequences (Goal: 2)</h3>
+                    <div id="score-display">
+                        <span style="color:#ff7675;">Red: <b id="score-red">0</b></span> | 
+                        <span style="color:#3b82f6;">Blue: <b id="score-blue">0</b></span> | 
+                        <span style="color:#b8e994; color:#333;">Green: <b id="score-green">0</b></span>
+                    </div>
+                </div>
+                
+                <div class="hand-container">
+                    <h3>Your Hand</h3>
+                    <div id="hand" class="cards-grid"></div>
+                </div>
+
+                <div class="discard-pile">
+                    <h3>Deck & Discard</h3>
+                    <div class="pile-layout">
+                        <div class="deck-box">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/d/d4/Card_back_01.svg" class="card-img" style="width: 50px;">
+                            <div><span id="cards-left">104</span> left</div>
+                        </div>
+                        <div id="last-discarded"></div>
+                    </div>
+                </div>
             </div>
+
         </div>
     </div>
 
