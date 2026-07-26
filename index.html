@@ -2,50 +2,73 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Professional Sequence</title>
+    <title>Sequence Online</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- LANDING PAGE -->
-    <div id="landing-page" class="screen active">
-        <div class="modal">
-            <h1>SEQUENCE</h1>
-            <p>Join the Game</p>
-            <input type="text" id="username" placeholder="Enter your name" required>
-            <select id="team-select">
-                <option value="red">Red Team</option>
-                <option value="blue">Blue Team</option>
-            </select>
-            <button id="join-btn">Enter Game</button>
-        </div>
-    </div>
-    <!-- LOBBY PAGE -->
-    <div id="lobby-page" class="screen">
-        <div class="modal">
-            <h2>Waiting for Players...</h2>
-            <ul id="player-list" style="list-style: none; padding: 20px 0; font-size: 1.2rem;">
-                <!-- Players will populate here -->
-            </ul>
-            <button id="start-game-btn">Start Game</button>
-        </div>
-    </div>
-    <!-- GAME PAGE -->
-    <div id="game-page" class="screen">
-        <div class="header">
-            <h2>Current Turn: <span id="turn-indicator">Waiting...</span></h2>
-            <h3 id="player-info"></h3>
-        </div>
-        
-        <div id="board"></div>
-        
-        <div class="hand-container">
-            <h3>Your Hand: (Click a card, then click the board)</h3>
-            <div id="hand"></div>
+    <!-- SCREEN 1: Choose a Name (image_82309f.png) -->
+    <div id="name-screen" class="screen active">
+        <div class="panel">
+            <h1 class="cyan-text">Choose a name for yourself</h1>
+            <input type="text" id="nickname" placeholder="Nickname">
+            <button id="submit-name" class="pink-btn">Submit</button>
         </div>
     </div>
 
-    <!-- Replace with your actual server URL -->
+    <!-- SCREEN 2: Lobby & Settings (image_823134.png) -->
+    <div id="lobby-screen" class="screen">
+        <div class="panel wide">
+            <h2 class="cyan-text">Share the link of this game with others!</h2>
+            <div class="share-box">
+                <input type="text" id="share-link" readonly>
+                <button id="copy-btn">Copy</button>
+            </div>
+
+            <h2 class="cyan-text">Settings</h2>
+            <div class="settings-grid">
+                <!-- Sliders and Dropdowns go here -->
+                <label>Time for a player to make a move (seconds)</label>
+                <input type="range" min="15" max="120" value="60">
+            </div>
+
+            <h2 class="cyan-text">Team members</h2>
+            <button class="outline-btn">Randomize Teams</button>
+            <p class="subtitle">Set the team members in each area. You can drag and drop the players to change their teams!</p>
+            
+            <div class="teams-container">
+                <div class="team-box blue-team" id="blue-dropzone"></div>
+                <div class="team-box red-team" id="red-dropzone"></div>
+                <div class="team-box green-team" id="green-dropzone"></div>
+            </div>
+
+            <button id="start-game-btn" class="pink-btn large">Start the Game</button>
+        </div>
+    </div>
+
+    <!-- SCREEN 3: Game Board (image_822d15.jpg) -->
+    <div id="game-screen" class="screen">
+        <div class="game-header">
+            <span id="turn-indicator">Waiting to start...</span>
+        </div>
+        
+        <div id="board" class="sequence-grid"></div>
+        
+        <div class="game-footer">
+            <div id="hand" class="cards-container"></div>
+            <div class="scoreboard">
+                <table>
+                    <tr><th>Goal: 2</th><th>Red</th><th>Blue</th></tr>
+                    <tr><td>Current:</td><td id="score-red">0</td><td id="score-blue">0</td></tr>
+                </table>
+            </div>
+            <div class="discard-pile">
+                <img src="card-back.png" alt="Deck">
+                <span id="cards-left">90</span>
+                <div id="last-discarded"></div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
     <script src="script.js"></script>
 </body>
