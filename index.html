@@ -97,7 +97,7 @@
             <div class="board-container"><div id="board"></div></div>
             <div class="side-panel">
                 <div class="turn-box">
-                    <h2 id="seq-turn-indicator">Waiting...</h2>
+                    <h2 id="seq-turn-indicator" class="turn-indicator">Waiting...</h2>
                     <button class="rematch-btn" style="display: none;">Play Rematch</button>
                 </div>
                 <div class="scoreboard">
@@ -132,12 +132,13 @@
             <div class="uno-opponents" id="uno-opponents"></div>
             <div class="uno-table">
                 <div class="turn-box" style="margin-bottom: 20px;">
-                    <h2 id="uno-turn-indicator">Waiting...</h2>
+                    <h2 id="uno-turn-indicator" class="turn-indicator">Waiting...</h2>
                     <button class="rematch-btn" style="display: none;">Play Rematch</button>
                 </div>
                 <div class="uno-center-piles">
                     <div class="uno-deck" id="uno-draw-pile">
                         <div class="uno-card black"><div class="uno-card-inner"><span class="uno-card-value">DRAW</span></div></div>
+                        <div id="uno-draw-stack-alert" style="color: #ff5252; font-weight: bold; margin-top: 5px;"></div>
                     </div>
                     <div class="uno-discard" id="uno-discard-pile"></div>
                 </div>
@@ -166,7 +167,7 @@
             </div>
             <div class="side-panel">
                 <div class="turn-box">
-                    <h2 id="daadi-turn-indicator">Waiting...</h2>
+                    <h2 id="daadi-turn-indicator" class="turn-indicator">Waiting...</h2>
                     <div id="daadi-action-text" style="margin-top: 10px; font-weight: bold; color: gold;"></div>
                     <button class="rematch-btn" style="display: none;">Play Rematch</button>
                 </div>
@@ -204,7 +205,7 @@
 
             <div class="side-panel">
                 <div class="turn-box">
-                    <h2 id="phase10-turn-indicator">Waiting...</h2>
+                    <h2 id="phase10-turn-indicator" class="turn-indicator">Waiting...</h2>
                     <button class="rematch-btn" style="display: none;">Play Rematch</button>
                 </div>
                 <div class="scoreboard">
@@ -231,6 +232,9 @@
             </div>
         </div>
     </div>
+
+    <!-- Notification Sound -->
+    <audio id="turn-sound" src="https://assets.mixkit.co/active_storage/sfx/2574/2574-preview.mp3" preload="auto"></audio>
 
     <!-- Global Tribute Footer -->
     <div class="global-footer">
