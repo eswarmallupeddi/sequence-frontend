@@ -31,6 +31,11 @@
                     <h2>Daadi</h2>
                     <p>Ancient 9 Men's Morris strategy.</p>
                 </div>
+                <div class="game-card" id="select-phase10">
+                    <div class="phase-card-mockup">10</div>
+                    <h2>Phase Race</h2>
+                    <p>Race through 10 contract phases!</p>
+                </div>
             </div>
         </div>
     </div>
@@ -74,7 +79,7 @@
                 </div>
             </div>
 
-            <!-- Free-For-All Lobby (Color Match & Daadi) -->
+            <!-- Free-For-All Lobby (Color Match, Daadi, Phase Race) -->
             <div class="ffa-container" id="lobby-ffa" style="display: none;">
                 <div class="team-box" style="background: #4c566a; max-width: 400px; margin: 0 auto;">
                     <h3>Players</h3>
@@ -149,7 +154,6 @@
         <div class="game-layout">
             <div class="board-container">
                 <div id="daadi-board-container" class="daadi-wrapper">
-                    <!-- Pure CSS Board Geometry -->
                     <div class="daadi-line outer"></div>
                     <div class="daadi-line mid"></div>
                     <div class="daadi-line inner"></div>
@@ -157,7 +161,6 @@
                     <div class="daadi-cross vertical bottom"></div>
                     <div class="daadi-cross horizontal left"></div>
                     <div class="daadi-cross horizontal right"></div>
-                    <!-- Nodes injected via JS -->
                     <div id="daadi-nodes"></div>
                 </div>
             </div>
@@ -170,6 +173,47 @@
                 <div class="scoreboard">
                     <h3>Players</h3>
                     <div id="daadi-players-list" style="margin-top: 15px; font-size: 1.2rem;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCREEN 4D: Phase Race Game Board -->
+    <div id="phase10-screen" class="screen">
+        <div class="game-layout">
+            <div class="board-container" style="flex-direction: column; align-items: center; gap: 20px;">
+                <div class="phase10-table-area">
+                    <div class="uno-center-piles">
+                        <div class="uno-deck" id="phase10-draw-pile">
+                            <div class="phase-card black"><div class="phase-card-inner">DRAW</div></div>
+                        </div>
+                        <div class="uno-discard" id="phase10-discard-pile"></div>
+                    </div>
+                </div>
+
+                <div class="phase10-actions" style="display: flex; gap: 10px; margin-top: 10px;">
+                    <button id="phase10-lay-btn">Lay Down Phase</button>
+                    <button id="phase10-discard-btn" style="background: #ff5252; color: white;">Discard Selected</button>
+                </div>
+
+                <div class="phase10-hand-area" style="width: 100%; text-align: center;">
+                    <h3>Your Hand</h3>
+                    <div id="phase10-hand" class="cards-grid" style="justify-content: center;"></div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="turn-box">
+                    <h2 id="phase10-turn-indicator">Waiting...</h2>
+                    <button class="rematch-btn" style="display: none;">Play Rematch</button>
+                </div>
+                <div class="scoreboard">
+                    <h3>Current Target</h3>
+                    <div id="phase10-target-desc" style="font-weight: bold; color: #0de0d8; margin-top: 5px;"></div>
+                </div>
+                <div class="scoreboard">
+                    <h3>Players Phase Progress</h3>
+                    <div id="phase10-players-list" style="margin-top: 10px;"></div>
                 </div>
             </div>
         </div>
