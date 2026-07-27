@@ -1,4 +1,4 @@
-const backendUrl = "https://family-dry-championship-wan.trycloudflare.com"; 
+const backendUrl = "https://lancaster-dentists-seafood-plains.trycloudflare.com"; 
 const socket = io(backendUrl);
 
 socket.on('connect', () => console.log("🟢 Frontend connected!"));
