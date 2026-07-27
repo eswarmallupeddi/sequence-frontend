@@ -10,10 +10,13 @@ const lobbyScreen = document.getElementById('lobby-screen');
 const sequenceScreen = document.getElementById('sequence-screen');
 const unoScreen = document.getElementById('uno-screen');
 const daadiScreen = document.getElementById('daadi-screen');
+const phase10Screen = document.getElementById('phase10-screen');
 
 const selectSequenceBtn = document.getElementById('select-sequence');
 const selectUnoBtn = document.getElementById('select-uno');
 const selectDaadiBtn = document.getElementById('select-daadi');
+const selectPhase10Btn = document.getElementById('select-phase10');
+
 const gameTitleDisplay = document.getElementById('game-title-display');
 const nicknameInput = document.getElementById('nickname');
 const submitNameBtn = document.getElementById('submit-name');
@@ -29,12 +32,13 @@ const urlParams = new URLSearchParams(window.location.search);
 if (urlParams.get('room') && urlParams.get('game')) {
     myRoomId = urlParams.get('room'); myGameType = urlParams.get('game');
     landingScreen.classList.remove('active'); nameScreen.classList.add('active');
-    gameTitleDisplay.innerText = `Join ${myGameType === 'uno' ? 'Color Match' : myGameType === 'daadi' ? 'Daadi' : 'Sequence'}`;
+    gameTitleDisplay.innerText = `Join ${myGameType === 'uno' ? 'Color Match' : myGameType === 'daadi' ? 'Daadi' : myGameType === 'phase10' ? 'Phase Race' : 'Sequence'}`;
 } else myRoomId = Math.random().toString(36).substring(2, 9);
 
 selectSequenceBtn.addEventListener('click', () => setGameType('sequence', 'Join Sequence'));
 selectUnoBtn.addEventListener('click', () => setGameType('uno', 'Join Color Match'));
 selectDaadiBtn.addEventListener('click', () => setGameType('daadi', 'Join Daadi'));
+selectPhase10Btn.addEventListener('click', () => setGameType('phase10', 'Join Phase Race'));
 
 function setGameType(type, title) {
     myGameType = type; landingScreen.classList.remove('active'); nameScreen.classList.add('active');
@@ -54,7 +58,7 @@ submitNameBtn.addEventListener('click', () => {
     } else {
         document.getElementById('lobby-teams').style.display = 'none';
         document.getElementById('lobby-ffa').style.display = 'block';
-        document.getElementById('randomize-btn').style.display = 'none'; // No teams to randomize
+        document.getElementById('randomize-btn').style.display = 'none';
     }
 
     socket.emit('joinRoom', { roomId: myRoomId, nickname: myName, gameType: myGameType });
@@ -99,11 +103,12 @@ socket.on('gameState', (data) => {
     if (data.gameType === 'sequence') { sequenceScreen.classList.add('active'); renderSequence(data); } 
     else if (data.gameType === 'uno') { unoScreen.classList.add('active'); renderUno(data); }
     else if (data.gameType === 'daadi') { daadiScreen.classList.add('active'); renderDaadi(data); }
+    else if (data.gameType === 'phase10') { phase10Screen.classList.add('active'); renderPhase10(data); }
 });
 
 socket.on('gameOver', (msg) => alert(`GAME OVER! ${msg}`));
 
-// --- Sequence Render (Truncated for brevity, remains unchanged from previous implementation) ---
+// --- Sequence Render ---
 let seqSelectedCard = null;
 function renderSequence(data) {
     const turnInd = document.getElementById('seq-turn-indicator'); const rematchBtn = sequenceScreen.querySelector('.rematch-btn');
@@ -128,7 +133,7 @@ function renderSequence(data) {
 }
 function getSeqImageUrl(c) { if (c === 'FREE') return ''; let p = c.split('-'); let s = p[0] === '♠'?'S':p[0] === '♥'?'H':p[0] === '♣'?'C':'D'; let r = p[1] === '10'?'0':p[1]; return `https://deckofcardsapi.com/static/img/${r}${s}.png`; }
 
-// --- Uno Render (Truncated, remains unchanged) ---
+// --- Color Match Render ---
 let pendingUnoCard = null;
 function renderUno(data) {
     const turnInd = document.getElementById('uno-turn-indicator'); const rematchBtn = unoScreen.querySelector('.rematch-btn');
@@ -152,121 +157,137 @@ function renderUno(data) {
 document.querySelectorAll('.color-btn').forEach(btn => { btn.addEventListener('click', (e) => { const chosen = e.target.getAttribute('data-color'); colorPickerModal.classList.remove('active'); if (pendingUnoCard) { socket.emit('playUnoMove', { roomId: myRoomId, username: myName, card: pendingUnoCard, chosenColor: chosen }); pendingUnoCard = null; } }); });
 function createUnoCard(cardObj) { const el = document.createElement('div'); el.className = `uno-card ${cardObj.color}`; let displayVal = cardObj.value; if (displayVal === 'Skip') displayVal = '⊘'; if (displayVal === 'Rev') displayVal = '⇄'; if (displayVal === 'Wild') displayVal = 'W'; el.innerHTML = `<div class="uno-card-mini">${displayVal}</div><div class="uno-card-inner"><span class="uno-card-value">${displayVal}</span></div><div class="uno-card-mini bottom">${displayVal}</div>`; return el; }
 
-// --- Daadi (9 Men's Morris) Render ---
+// --- Daadi Render ---
 let daadiSelectedNode = null;
-
-// Node percentage coordinates [left, top] mapped precisely to the CSS geometry
-const DAADI_COORDS = [
-    [10,10], [50,10], [90,10], [90,50], [90,90], [50,90], [10,90], [10,50], // Outer
-    [30,30], [50,30], [70,30], [70,50], [70,70], [50,70], [30,70], [30,50], // Mid
-    [40,40], [50,40], [60,40], [60,50], [60,60], [50,60], [40,60], [40,50]  // Inner
-];
-
+const DAADI_COORDS = [ [10,10],[50,10],[90,10],[90,50],[90,90],[50,90],[10,90],[10,50],[30,30],[50,30],[70,30],[70,50],[70,70],[50,70],[30,70],[30,50],[40,40],[50,40],[60,40],[60,50],[60,60],[50,60],[40,60],[40,50] ];
 function initDaadiBoard() {
-    const container = document.getElementById('daadi-nodes');
-    if (container.children.length > 0) return; // Already initialized
-    
-    // Add the true inner square border for aesthetics
-    const innerBorder = document.createElement('div');
-    innerBorder.className = 'daadi-line true-inner';
-    document.getElementById('daadi-board-container').appendChild(innerBorder);
-
+    const container = document.getElementById('daadi-nodes'); if (container.children.length > 0) return;
+    const innerBorder = document.createElement('div'); innerBorder.className = 'daadi-line true-inner'; document.getElementById('daadi-board-container').appendChild(innerBorder);
     for (let i = 0; i < 24; i++) {
-        const node = document.createElement('div');
-        node.className = 'daadi-node';
-        node.style.left = `${DAADI_COORDS[i][0]}%`;
-        node.style.top = `${DAADI_COORDS[i][1]}%`;
-        node.dataset.index = i;
-        
-        node.addEventListener('click', () => handleDaadiClick(i));
-        container.appendChild(node);
+        const node = document.createElement('div'); node.className = 'daadi-node'; node.style.left = `${DAADI_COORDS[i][0]}%`; node.style.top = `${DAADI_COORDS[i][1]}%`; node.dataset.index = i;
+        node.addEventListener('click', () => handleDaadiClick(i)); container.appendChild(node);
     }
 }
-
 let currentDaadiState = null;
-
 function renderDaadi(data) {
-    initDaadiBoard();
-    currentDaadiState = data;
-    
-    const turnInd = document.getElementById('daadi-turn-indicator'); 
-    const actionTxt = document.getElementById('daadi-action-text');
-    const rematchBtn = daadiScreen.querySelector('.rematch-btn');
-    const isMyTurn = data.turnPlayer === myName;
-    const isRemoving = data.removingPlayer === myName;
-
-    // Header updates
-    if (isGameOver) { 
-        turnInd.innerText = "GAME OVER"; turnInd.style.background = "#222"; 
-        actionTxt.innerText = ""; rematchBtn.style.display = "block"; 
-    } else { 
-        rematchBtn.style.display = "none"; 
-        turnInd.innerText = isMyTurn ? "Your Turn!" : `${data.turnPlayer}'s Turn`; 
-        turnInd.style.background = isMyTurn ? "#0de0d8" : "#444"; 
-        
+    initDaadiBoard(); currentDaadiState = data;
+    const turnInd = document.getElementById('daadi-turn-indicator'); const actionTxt = document.getElementById('daadi-action-text'); const rematchBtn = daadiScreen.querySelector('.rematch-btn');
+    const isMyTurn = data.turnPlayer === myName; const isRemoving = data.removingPlayer === myName;
+    if (isGameOver) { turnInd.innerText = "GAME OVER"; turnInd.style.background = "#222"; actionTxt.innerText = ""; rematchBtn.style.display = "block"; } 
+    else { rematchBtn.style.display = "none"; turnInd.innerText = isMyTurn ? "Your Turn!" : `${data.turnPlayer}'s Turn`; turnInd.style.background = isMyTurn ? "#0de0d8" : "#444"; 
         if (isMyTurn && isRemoving) actionTxt.innerText = "MILL FORMED! Remove an opponent's animal!";
         else if (isMyTurn && data.me.unplaced > 0) actionTxt.innerText = `Place a ${data.me.icon} on an empty spot.`;
         else if (isMyTurn && data.me.unplaced === 0) actionTxt.innerText = "Select your animal, then click an empty spot to move.";
         else actionTxt.innerText = "Wait for your turn...";
     }
-
-    // Player List & Unplaced Tracker
-    const playersEl = document.getElementById('daadi-players-list');
-    playersEl.innerHTML = '';
-    data.playersList.forEach(p => {
-        playersEl.innerHTML += `<div style="margin-bottom:10px;">${p.icon} <b>${p.name}</b> <br><small>Unplaced: ${p.unplaced} | On Board: ${p.onBoard}</small></div>`;
-    });
-
-    // Board Nodes Update
+    const playersEl = document.getElementById('daadi-players-list'); playersEl.innerHTML = '';
+    data.playersList.forEach(p => { playersEl.innerHTML += `<div style="margin-bottom:10px;">${p.icon} <b>${p.name}</b> <br><small>Unplaced: ${p.unplaced} | On Board: ${p.onBoard}</small></div>`; });
     const nodes = document.getElementById('daadi-nodes').children;
     for (let i = 0; i < 24; i++) {
-        nodes[i].innerText = data.board[i] || ""; // Insert animal emoji or clear
-        nodes[i].classList.remove('selected', 'removing-target');
-        
-        // Visual cue for removing
-        if (isMyTurn && isRemoving && data.board[i] && data.board[i] !== data.me.icon) {
-            nodes[i].classList.add('removing-target');
-        }
+        nodes[i].innerText = data.board[i] || ""; nodes[i].classList.remove('selected', 'removing-target');
+        if (isMyTurn && isRemoving && data.board[i] && data.board[i] !== data.me.icon) nodes[i].classList.add('removing-target');
     }
-
-    // Preserve selection highlight if selecting own piece to move
-    if (daadiSelectedNode !== null && !isRemoving && nodes[daadiSelectedNode].innerText === data.me.icon) {
-        nodes[daadiSelectedNode].classList.add('selected');
-    } else {
-        daadiSelectedNode = null; // Reset if invalid
-    }
+    if (daadiSelectedNode !== null && !isRemoving && nodes[daadiSelectedNode].innerText === data.me.icon) nodes[daadiSelectedNode].classList.add('selected');
+    else daadiSelectedNode = null;
 }
-
 function handleDaadiClick(index) {
     if (isGameOver || currentDaadiState.turnPlayer !== myName) return;
-    
-    const isRemoving = currentDaadiState.removingPlayer === myName;
-    const board = currentDaadiState.board;
-    const myIcon = currentDaadiState.me.icon;
+    const isRemoving = currentDaadiState.removingPlayer === myName; const board = currentDaadiState.board; const myIcon = currentDaadiState.me.icon;
+    if (isRemoving) { if (board[index] && board[index] !== myIcon) socket.emit('playDaadiMove', { roomId: myRoomId, username: myName, action: 'remove', index: index }); return; }
+    if (currentDaadiState.me.unplaced > 0) { if (!board[index]) socket.emit('playDaadiMove', { roomId: myRoomId, username: myName, action: 'place', index: index }); } 
+    else { if (board[index] === myIcon) { daadiSelectedNode = index; renderDaadi(currentDaadiState); } else if (!board[index] && daadiSelectedNode !== null) { socket.emit('playDaadiMove', { roomId: myRoomId, username: myName, action: 'move', fromIndex: daadiSelectedNode, index: index }); daadiSelectedNode = null; } }
+}
 
-    if (isRemoving) {
-        // Only allow clicking opponent's pieces
-        if (board[index] && board[index] !== myIcon) {
-            socket.emit('playDaadiMove', { roomId: myRoomId, username: myName, action: 'remove', index: index });
-        }
-        return;
-    }
+// --- Phase Race (Phase 10) Render ---
+let phase10SelectedCards = [];
 
-    if (currentDaadiState.me.unplaced > 0) {
-        // Placement Phase
-        if (!board[index]) {
-            socket.emit('playDaadiMove', { roomId: myRoomId, username: myName, action: 'place', index: index });
-        }
+function renderPhase10(data) {
+    const turnInd = document.getElementById('phase10-turn-indicator');
+    const rematchBtn = phase10Screen.querySelector('.rematch-btn');
+    const isMyTurn = data.turnPlayer === myName;
+
+    if (isGameOver) {
+        turnInd.innerText = "GAME OVER"; turnInd.style.background = "#222"; rematchBtn.style.display = "block";
     } else {
-        // Movement Phase
-        if (board[index] === myIcon) {
-            // Select piece
-            daadiSelectedNode = index;
-            renderDaadi(currentDaadiState); // Re-render to highlight
-        } else if (!board[index] && daadiSelectedNode !== null) {
-            // Attempt Move
-            socket.emit('playDaadiMove', { roomId: myRoomId, username: myName, action: 'move', fromIndex: daadiSelectedNode, index: index });
-            daadiSelectedNode = null;
-        }
+        rematchBtn.style.display = "none";
+        turnInd.innerText = isMyTurn ? "Your Turn!" : `${data.turnPlayer.toUpperCase()}'s Turn`;
+        turnInd.style.background = isMyTurn ? "#0de0d8" : "#444";
     }
+
+    document.getElementById('phase10-target-desc').innerText = `Phase ${data.me.phase}: ${getPhaseDescription(data.me.phase)}`;
+
+    // Players List
+    const pListEl = document.getElementById('phase10-players-list');
+    pListEl.innerHTML = '';
+    data.playerList.forEach(p => {
+        pListEl.innerHTML += `<div style="margin-bottom:8px;"><b>${p.name}</b>: Phase ${p.phase} ${p.hasLaidPhase ? '✓ (Phase Laid)' : ''}</div>`;
+    });
+
+    // Discard Pile
+    const discardPile = document.getElementById('phase10-discard-pile');
+    discardPile.innerHTML = '';
+    if (data.topCard) discardPile.appendChild(createPhaseCard(data.topCard));
+
+    // Draw Actions
+    document.getElementById('phase10-draw-pile').onclick = () => {
+        if (!isGameOver && isMyTurn && !data.me.hasDrawn) socket.emit('drawPhase10', { roomId: myRoomId, username: myName, source: 'deck' });
+    };
+    discardPile.onclick = () => {
+        if (!isGameOver && isMyTurn && !data.me.hasDrawn && data.topCard) socket.emit('drawPhase10', { roomId: myRoomId, username: myName, source: 'discard' });
+    };
+
+    // Hand Render
+    const handEl = document.getElementById('phase10-hand');
+    handEl.innerHTML = '';
+    data.hand.forEach((card, idx) => {
+        const cardEl = createPhaseCard(card);
+        if (phase10SelectedCards.includes(idx)) cardEl.classList.add('selected');
+        
+        cardEl.addEventListener('click', () => {
+            if (phase10SelectedCards.includes(idx)) {
+                phase10SelectedCards = phase10SelectedCards.filter(i => i !== idx);
+            } else {
+                phase10SelectedCards.push(idx);
+            }
+            renderPhase10(data);
+        });
+        handEl.appendChild(cardEl);
+    });
+
+    // Lay Down Phase Button
+    document.getElementById('phase10-lay-btn').onclick = () => {
+        if (!isGameOver && isMyTurn && data.me.hasDrawn && !data.me.hasLaidPhase) {
+            socket.emit('layPhase10', { roomId: myRoomId, username: myName, selectedIndices: phase10SelectedCards });
+            phase10SelectedCards = [];
+        }
+    };
+
+    // Discard Button
+    document.getElementById('phase10-discard-btn').onclick = () => {
+        if (!isGameOver && isMyTurn && data.me.hasDrawn && phase10SelectedCards.length === 1) {
+            socket.emit('discardPhase10', { roomId: myRoomId, username: myName, cardIndex: phase10SelectedCards[0] });
+            phase10SelectedCards = [];
+        } else if (phase10SelectedCards.length !== 1) {
+            alert("Select exactly 1 card to discard!");
+        }
+    };
+}
+
+function createPhaseCard(c) {
+    const el = document.createElement('div');
+    el.className = `phase-card ${c.color}`;
+    let val = c.value;
+    if (val === 'Wild') val = 'W';
+    if (val === 'Skip') val = 'S';
+    el.innerHTML = `<div class="phase-card-inner">${val}</div>`;
+    return el;
+}
+
+function getPhaseDescription(phase) {
+    const desc = [
+        "", "2 sets of 3", "1 set of 3 + 1 run of 4", "1 set of 4 + 1 run of 4",
+        "1 run of 7", "1 run of 8", "1 run of 9", "2 sets of 4",
+        "7 cards of 1 color", "1 set of 5 + 1 set of 2", "1 set of 5 + 1 set of 3"
+    ];
+    return desc[phase] || "";
 }
