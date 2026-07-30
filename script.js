@@ -15,6 +15,7 @@ const phase10Screen = document.getElementById('phase10-screen');
 const selectSequenceBtn = document.getElementById('select-sequence');
 const selectUnoBtn = document.getElementById('select-uno');
 const selectDaadiBtn = document.getElementById('select-daadi');
+const selectDaadi11Btn = document.getElementById('select-daadi11');
 const selectPhase10Btn = document.getElementById('select-phase10');
 
 const gameTitleDisplay = document.getElementById('game-title-display');
@@ -34,12 +35,13 @@ const urlParams = new URLSearchParams(window.location.search);
 if (urlParams.get('room') && urlParams.get('game')) {
     myRoomId = urlParams.get('room'); myGameType = urlParams.get('game');
     landingScreen.classList.remove('active'); nameScreen.classList.add('active');
-    gameTitleDisplay.innerText = `Join ${myGameType === 'uno' ? 'Color Match' : myGameType === 'daadi' ? 'Daadi' : myGameType === 'phase10' ? 'Phase Race' : 'Sequence'}`;
+    gameTitleDisplay.innerText = `Join ${myGameType === 'uno' ? 'Color Match' : myGameType.includes('daadi') ? 'Daadi' : myGameType === 'phase10' ? 'Phase Race' : 'Sequence'}`;
 } else myRoomId = Math.random().toString(36).substring(2, 9);
 
 selectSequenceBtn.addEventListener('click', () => setGameType('sequence', 'Join Sequence'));
 selectUnoBtn.addEventListener('click', () => setGameType('uno', 'Join Color Match'));
 selectDaadiBtn.addEventListener('click', () => setGameType('daadi', 'Join Daadi'));
+selectDaadi11Btn.addEventListener('click', () => setGameType('daadi11', 'Join 11 Men\'s Morris'));
 selectPhase10Btn.addEventListener('click', () => setGameType('phase10', 'Join Phase Race'));
 
 function setGameType(type, title) {
@@ -108,7 +110,7 @@ socket.on('gameState', (data) => {
 
     if (data.gameType === 'sequence') { sequenceScreen.classList.add('active'); renderSequence(data, isMyTurn); } 
     else if (data.gameType === 'uno') { unoScreen.classList.add('active'); renderUno(data, isMyTurn); }
-    else if (data.gameType === 'daadi') { daadiScreen.classList.add('active'); renderDaadi(data, isMyTurn); }
+    else if (data.gameType.includes('daadi')) { daadiScreen.classList.add('active'); renderDaadi(data, isMyTurn); }
     else if (data.gameType === 'phase10') { phase10Screen.classList.add('active'); renderPhase10(data, isMyTurn); }
 });
 
@@ -118,8 +120,7 @@ socket.on('gameOver', (msg) => alert(`GAME OVER! ${msg}`));
 let seqSelectedCard = null;
 function renderSequence(data, isMyTurn) {
     const turnInd = document.getElementById('seq-turn-indicator'); const rematchBtn = sequenceScreen.querySelector('.rematch-btn');
-    turnInd.className = 'turn-indicator'; // Reset class
-    
+    turnInd.className = 'turn-indicator'; 
     if (isGameOver) { turnInd.innerText = "GAME OVER"; turnInd.style.background = "#222"; rematchBtn.style.display = "block"; turnInd.style.color="white"; } 
     else { 
         rematchBtn.style.display = "none"; turnInd.innerText = isMyTurn ? "Your Turn!" : `${data.turnPlayer.toUpperCase()}'s Turn`; 
@@ -157,10 +158,8 @@ function renderUno(data, isMyTurn) {
         else { turnInd.style.background = "#444"; turnInd.style.color = "white"; }
     }
     
-    // Stack alert display
     const stackAlert = document.getElementById('uno-draw-stack-alert');
-    if (data.drawStack > 0) stackAlert.innerText = `Pending +${data.drawStack}`;
-    else stackAlert.innerText = '';
+    if (data.drawStack > 0) stackAlert.innerText = `Pending +${data.drawStack}`; else stackAlert.innerText = '';
 
     const oppEl = document.getElementById('uno-opponents'); oppEl.innerHTML = '';
     data.playerList.forEach(p => { if (p.name === myName) return; const div = document.createElement('div'); div.className = 'uno-opponent'; div.innerHTML = `${p.name}<br><span style="font-size:24px; color:#0de0d8">${p.cardCount}</span> cards`; oppEl.appendChild(div); });
@@ -180,11 +179,17 @@ function renderUno(data, isMyTurn) {
 document.querySelectorAll('.color-btn').forEach(btn => { btn.addEventListener('click', (e) => { const chosen = e.target.getAttribute('data-color'); colorPickerModal.classList.remove('active'); if (pendingUnoCard) { socket.emit('playUnoMove', { roomId: myRoomId, username: myName, card: pendingUnoCard, chosenColor: chosen }); pendingUnoCard = null; } }); });
 function createUnoCard(cardObj) { const el = document.createElement('div'); el.className = `uno-card ${cardObj.color}`; let displayVal = cardObj.value; if (displayVal === 'Skip') displayVal = '⊘'; if (displayVal === 'Rev') displayVal = '⇄'; if (displayVal === 'Wild') displayVal = 'W'; el.innerHTML = `<div class="uno-card-mini">${displayVal}</div><div class="uno-card-inner"><span class="uno-card-value">${displayVal}</span></div><div class="uno-card-mini bottom">${displayVal}</div>`; return el; }
 
-// --- Daadi Render ---
+// --- Daadi & 11 Men's Render ---
 let daadiSelectedNode = null;
 const DAADI_COORDS = [ [10,10],[50,10],[90,10],[90,50],[90,90],[50,90],[10,90],[10,50],[30,30],[50,30],[70,30],[70,50],[70,70],[50,70],[30,70],[30,50],[40,40],[50,40],[60,40],[60,50],[60,60],[50,60],[40,60],[40,50] ];
-function initDaadiBoard() {
+function initDaadiBoard(gameType) {
     const container = document.getElementById('daadi-nodes'); if (container.children.length > 0) return;
+    
+    // Show diagonals if 11 coins variant
+    if (gameType === 'daadi11') {
+        document.getElementById('daadi-diagonals').style.display = 'block';
+    }
+
     const innerBorder = document.createElement('div'); innerBorder.className = 'daadi-line true-inner'; document.getElementById('daadi-board-container').appendChild(innerBorder);
     for (let i = 0; i < 24; i++) {
         const node = document.createElement('div'); node.className = 'daadi-node'; node.style.left = `${DAADI_COORDS[i][0]}%`; node.style.top = `${DAADI_COORDS[i][1]}%`; node.dataset.index = i;
@@ -193,7 +198,7 @@ function initDaadiBoard() {
 }
 let currentDaadiState = null;
 function renderDaadi(data, isMyTurn) {
-    initDaadiBoard(); currentDaadiState = data;
+    initDaadiBoard(data.gameType); currentDaadiState = data;
     const turnInd = document.getElementById('daadi-turn-indicator'); const actionTxt = document.getElementById('daadi-action-text'); const rematchBtn = daadiScreen.querySelector('.rematch-btn');
     const isRemoving = data.removingPlayer === myName;
     turnInd.className = 'turn-indicator';
@@ -229,45 +234,28 @@ function handleDaadiClick(index) {
 
 // --- Phase Race (Phase 10) Render ---
 let phase10SelectedCards = [];
-
 function renderPhase10(data, isMyTurn) {
-    const turnInd = document.getElementById('phase10-turn-indicator');
-    const rematchBtn = phase10Screen.querySelector('.rematch-btn');
+    const turnInd = document.getElementById('phase10-turn-indicator'); const rematchBtn = phase10Screen.querySelector('.rematch-btn');
     turnInd.className = 'turn-indicator';
 
-    if (isGameOver) {
-        turnInd.innerText = "GAME OVER"; turnInd.style.background = "#222"; turnInd.style.color = "white"; rematchBtn.style.display = "block";
-    } else {
-        rematchBtn.style.display = "none";
-        turnInd.innerText = isMyTurn ? "Your Turn!" : `${data.turnPlayer.toUpperCase()}'s Turn`;
-        if (isMyTurn) turnInd.classList.add('my-turn-pulse');
-        else { turnInd.style.background = "#444"; turnInd.style.color = "white"; }
+    if (isGameOver) { turnInd.innerText = "GAME OVER"; turnInd.style.background = "#222"; turnInd.style.color = "white"; rematchBtn.style.display = "block"; } 
+    else { 
+        rematchBtn.style.display = "none"; turnInd.innerText = isMyTurn ? "Your Turn!" : `${data.turnPlayer.toUpperCase()}'s Turn`;
+        if (isMyTurn) turnInd.classList.add('my-turn-pulse'); else { turnInd.style.background = "#444"; turnInd.style.color = "white"; }
     }
 
     document.getElementById('phase10-target-desc').innerText = `Phase ${data.me.phase}: ${getPhaseDescription(data.me.phase)}`;
 
-    // Players List & Hitting Logic
-    const pListEl = document.getElementById('phase10-players-list');
-    pListEl.innerHTML = '';
+    const pListEl = document.getElementById('phase10-players-list'); pListEl.innerHTML = '';
     data.playerList.forEach(p => {
-        const playerDiv = document.createElement('div');
-        playerDiv.style.marginBottom = "15px";
+        const playerDiv = document.createElement('div'); playerDiv.style.marginBottom = "15px";
         playerDiv.innerHTML = `<b>${p.name}</b>: Phase ${p.phase} ${p.hasLaidPhase ? '✓' : ''}`;
         
         if (data.laidPhases && data.laidPhases[p.name]) {
-            const tableCards = document.createElement('div');
-            tableCards.className = 'cards-grid';
-            tableCards.style.transform = "scale(0.8)"; 
-            tableCards.style.transformOrigin = "left center";
-            
+            const tableCards = document.createElement('div'); tableCards.className = 'cards-grid'; tableCards.style.transform = "scale(0.8)"; tableCards.style.transformOrigin = "left center";
             data.laidPhases[p.name].forEach(c => {
                 const cardEl = createPhaseCard(c);
-                cardEl.onclick = () => {
-                    if (isMyTurn && data.me.hasLaidPhase && phase10SelectedCards.length === 1) {
-                        socket.emit('hitPhase10', { roomId: myRoomId, username: myName, targetUser: p.name, cardIndex: phase10SelectedCards[0] });
-                        phase10SelectedCards = [];
-                    }
-                };
+                cardEl.onclick = () => { if (isMyTurn && data.me.hasLaidPhase && phase10SelectedCards.length === 1) { socket.emit('hitPhase10', { roomId: myRoomId, username: myName, targetUser: p.name, cardIndex: phase10SelectedCards[0] }); phase10SelectedCards = []; } };
                 tableCards.appendChild(cardEl);
             });
             playerDiv.appendChild(tableCards);
@@ -275,52 +263,21 @@ function renderPhase10(data, isMyTurn) {
         pListEl.appendChild(playerDiv);
     });
 
-    const discardPile = document.getElementById('phase10-discard-pile');
-    discardPile.innerHTML = '';
+    const discardPile = document.getElementById('phase10-discard-pile'); discardPile.innerHTML = '';
     if (data.topCard) discardPile.appendChild(createPhaseCard(data.topCard));
 
-    document.getElementById('phase10-draw-pile').onclick = () => {
-        if (!isGameOver && isMyTurn && !data.me.hasDrawn) socket.emit('drawPhase10', { roomId: myRoomId, username: myName, source: 'deck' });
-    };
-    discardPile.onclick = () => {
-        if (!isGameOver && isMyTurn && !data.me.hasDrawn && data.topCard) socket.emit('drawPhase10', { roomId: myRoomId, username: myName, source: 'discard' });
-    };
+    document.getElementById('phase10-draw-pile').onclick = () => { if (!isGameOver && isMyTurn && !data.me.hasDrawn) socket.emit('drawPhase10', { roomId: myRoomId, username: myName, source: 'deck' }); };
+    discardPile.onclick = () => { if (!isGameOver && isMyTurn && !data.me.hasDrawn && data.topCard) socket.emit('drawPhase10', { roomId: myRoomId, username: myName, source: 'discard' }); };
 
-    const handEl = document.getElementById('phase10-hand');
-    handEl.innerHTML = '';
+    const handEl = document.getElementById('phase10-hand'); handEl.innerHTML = '';
     data.hand.forEach((card, idx) => {
-        const cardEl = createPhaseCard(card);
-        if (phase10SelectedCards.includes(idx)) cardEl.classList.add('selected');
-        
-        cardEl.addEventListener('click', () => {
-            if (phase10SelectedCards.includes(idx)) phase10SelectedCards = phase10SelectedCards.filter(i => i !== idx);
-            else phase10SelectedCards.push(idx);
-            renderPhase10(data, isMyTurn);
-        });
+        const cardEl = createPhaseCard(card); if (phase10SelectedCards.includes(idx)) cardEl.classList.add('selected');
+        cardEl.addEventListener('click', () => { if (phase10SelectedCards.includes(idx)) phase10SelectedCards = phase10SelectedCards.filter(i => i !== idx); else phase10SelectedCards.push(idx); renderPhase10(data, isMyTurn); });
         handEl.appendChild(cardEl);
     });
 
-    document.getElementById('phase10-lay-btn').onclick = () => {
-        if (!isGameOver && isMyTurn && data.me.hasDrawn && !data.me.hasLaidPhase) {
-            socket.emit('layPhase10', { roomId: myRoomId, username: myName, selectedIndices: phase10SelectedCards });
-            phase10SelectedCards = [];
-        }
-    };
-
-    document.getElementById('phase10-discard-btn').onclick = () => {
-        if (!isGameOver && isMyTurn && data.me.hasDrawn && phase10SelectedCards.length === 1) {
-            socket.emit('discardPhase10', { roomId: myRoomId, username: myName, cardIndex: phase10SelectedCards[0] });
-            phase10SelectedCards = [];
-        } else if (phase10SelectedCards.length !== 1) alert("Select exactly 1 card to discard!");
-    };
+    document.getElementById('phase10-lay-btn').onclick = () => { if (!isGameOver && isMyTurn && data.me.hasDrawn && !data.me.hasLaidPhase) { socket.emit('layPhase10', { roomId: myRoomId, username: myName, selectedIndices: phase10SelectedCards }); phase10SelectedCards = []; } };
+    document.getElementById('phase10-discard-btn').onclick = () => { if (!isGameOver && isMyTurn && data.me.hasDrawn && phase10SelectedCards.length === 1) { socket.emit('discardPhase10', { roomId: myRoomId, username: myName, cardIndex: phase10SelectedCards[0] }); phase10SelectedCards = []; } else if (phase10SelectedCards.length !== 1) alert("Select exactly 1 card to discard!"); };
 }
-
-function createPhaseCard(c) {
-    const el = document.createElement('div'); el.className = `phase-card ${c.color}`;
-    let val = c.value; if (val === 'Wild') val = 'W'; if (val === 'Skip') val = 'S';
-    el.innerHTML = `<div class="phase-card-inner">${val}</div>`; return el;
-}
-function getPhaseDescription(phase) {
-    const desc = [ "", "2 sets of 3", "1 set of 3 + 1 run of 4", "1 set of 4 + 1 run of 4", "1 run of 7", "1 run of 8", "1 run of 9", "2 sets of 4", "7 cards of 1 color", "1 set of 5 + 1 set of 2", "1 set of 5 + 1 set of 3" ];
-    return desc[phase] || "";
-}
+function createPhaseCard(c) { const el = document.createElement('div'); el.className = `phase-card ${c.color}`; let val = c.value; if (val === 'Wild') val = 'W'; if (val === 'Skip') val = 'S'; el.innerHTML = `<div class="phase-card-inner">${val}</div>`; return el; }
+function getPhaseDescription(phase) { const desc = [ "", "2 sets of 3", "1 set of 3 + 1 run of 4", "1 set of 4 + 1 run of 4", "1 run of 7", "1 run of 8", "1 run of 9", "2 sets of 4", "7 cards of 1 color", "1 set of 5 + 1 set of 2", "1 set of 5 + 1 set of 3" ]; return desc[phase] || ""; }
