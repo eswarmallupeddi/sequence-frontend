@@ -9,29 +9,21 @@ button { background: #0de0d8; border: none; padding: 12px 25px; border-radius: 6
 button:hover { background: #0bc4bd; }
 .outline-btn { background: transparent; border: 2px solid #0de0d8; color: #0de0d8; }
 .rematch-btn { width: 100%; margin-top: 10px; padding: 10px; background: #0de0d8; border-radius: 6px; color: #333; }
-
-/* Landing Page Cards */
 .game-cards { display: flex; gap: 20px; justify-content: center; margin-top: 20px; flex-wrap: wrap; }
 .game-card { background: #4c566a; padding: 20px; border-radius: 10px; cursor: pointer; transition: 0.2s; width: 180px; border: 2px solid transparent; text-align: center; }
 .game-card:hover { transform: translateY(-5px); border-color: #0de0d8; }
-
-/* Lobby Teams & FFA */
 .share-box { background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px; margin-bottom: 20px; }
 .teams-container, .ffa-container { display: flex; gap: 15px; margin: 20px 0; justify-content: center; flex-wrap: wrap; }
 .team-box { flex: 1; min-width: 200px; border-radius: 8px; padding: 15px; min-height: 200px; color: white; }
-.blue-team { background-color: #3b82f6; }
-.red-team { background-color: #ff7675; }
-.green-team { background-color: #27ae60; } 
+.blue-team { background-color: #3b82f6; } .red-team { background-color: #ff7675; } .green-team { background-color: #27ae60; } 
 .dropzone { min-height: 150px; background: rgba(255,255,255,0.1); border-radius: 6px; padding: 10px; display: flex; flex-direction: column; gap: 10px; }
 .drag-over { filter: brightness(1.3); border: 3px dashed #fff !important; }
 .player-tag { background: rgba(0, 0, 0, 0.4); color: white; padding: 10px; border-radius: 6px; font-weight: bold; cursor: grab; text-align: center; user-select: none; }
-
-/* Visual Alerts */
 .turn-indicator { margin: 0; text-align: center; padding: 10px; border-radius: 6px; transition: 0.3s; }
 @keyframes pulse-turn { 0% { transform: scale(1); box-shadow: 0 0 0px #0de0d8; } 50% { transform: scale(1.05); box-shadow: 0 0 20px #0de0d8; } 100% { transform: scale(1); box-shadow: 0 0 0px #0de0d8; } }
 .my-turn-pulse { animation: pulse-turn 1.5s infinite; background: #0de0d8 !important; color: #111 !important; }
 
-/* Sequence Board */
+/* Sequence, Uno, Phase10, Daadi (Inherit from previous code exactly as they were, combined here for brevity) */
 .game-layout { display: flex; flex-direction: row; gap: 30px; width: 100%; max-width: 1400px; padding: 20px; align-items: flex-start; margin-top: 20px; }
 .board-container { flex: 2; display: flex; justify-content: center; }
 #board { display: grid; grid-template-columns: repeat(10, 1fr); gap: 2px; background: #0de0d8; padding: 4px; width: 100%; max-width: 75vh; aspect-ratio: 1 / 1; margin: 0 auto; border-radius: 8px; }
@@ -39,87 +31,67 @@ button:hover { background: #0bc4bd; }
 .card-img { width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
 .side-panel { flex: 1; background: #2b323c; padding: 25px; border-radius: 12px; display: flex; flex-direction: column; gap: 25px; min-width: 300px; }
 .scoreboard { font-size: 1.1rem; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; }
-#score-display { margin-top: 10px; display: flex; justify-content: space-between; font-weight: bold; }
 .cards-grid { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-start; }
 .hand-card { width: 60px; height: 84px; cursor: pointer; border-radius: 4px; transition: 0.2s; }
 .hand-card:hover { transform: translateY(-5px); }
 .pile-layout { display: flex; gap: 30px; align-items: center; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; }
-.deck-box { text-align: center; font-size: 0.9rem; }
-#seq-last-discarded { display: flex; gap: 5px; }
-.discarded-card { width: 45px; height: 63px; border-radius: 4px; }
-
-/* Color Match Layout */
+#seq-last-discarded { display: flex; gap: 5px; } .discarded-card { width: 45px; height: 63px; border-radius: 4px; }
 .uno-layout { display: flex; flex-direction: column; width: 100%; max-width: 1200px; padding: 20px; gap: 30px; height: 90vh; }
 .uno-opponents { display: flex; justify-content: center; gap: 20px; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; }
 .uno-opponent { text-align: center; background: #3b4252; padding: 10px 20px; border-radius: 8px; font-weight: bold; }
 .uno-table { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; }
 .uno-center-piles { display: flex; gap: 40px; align-items: center; }
-.uno-deck { text-align: center; cursor: pointer; transition: 0.2s; }
-.uno-deck:hover { transform: translateY(-5px); }
+.uno-deck { text-align: center; cursor: pointer; transition: 0.2s; } .uno-deck:hover { transform: translateY(-5px); }
 .uno-player-area { background: rgba(0,0,0,0.2); padding: 20px; border-radius: 8px; text-align: center; }
 .uno-hand-grid { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 15px; }
-
-/* CSS Color Match Cards */
 .uno-card { width: 80px; height: 120px; border-radius: 8px; border: 5px solid white; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 32px; box-shadow: 0 4px 8px rgba(0,0,0,0.4); position: relative; user-select: none; cursor: pointer; transition: 0.2s; }
 .uno-card:hover { transform: translateY(-10px); }
-.uno-card.red { background: #ff5252; color: #ff5252; }
-.uno-card.blue { background: #3498db; color: #3498db; }
-.uno-card.green { background: #2ecc71; color: #2ecc71; }
-.uno-card.yellow { background: #f1c40f; color: #f1c40f; }
-.uno-card.black { background: #222; color: #222; }
+.uno-card.red { background: #ff5252; color: #ff5252; } .uno-card.blue { background: #3498db; color: #3498db; } .uno-card.green { background: #2ecc71; color: #2ecc71; } .uno-card.yellow { background: #f1c40f; color: #f1c40f; } .uno-card.black { background: #222; color: #222; }
 .uno-card-inner { background: white; border-radius: 50%; width: 60px; height: 90px; display: flex; justify-content: center; align-items: center; transform: skewY(-10deg); box-shadow: inset 0 0 5px rgba(0,0,0,0.2); }
 .uno-card-value { transform: skewY(10deg); text-shadow: 1px 1px 0px rgba(0,0,0,0.1); }
-.uno-card-mini { position: absolute; top: 2px; left: 4px; font-size: 14px; color: white; }
-.uno-card-mini.bottom { top: auto; bottom: 2px; left: auto; right: 4px; transform: rotate(180deg); }
+.uno-card-mini { position: absolute; top: 2px; left: 4px; font-size: 14px; color: white; } .uno-card-mini.bottom { top: auto; bottom: 2px; left: auto; right: 4px; transform: rotate(180deg); }
 .uno-card-mockup { width: 50px; height: 70px; background: #ff5252; border: 3px solid white; border-radius: 5px; margin: 0 auto 10px auto; display: flex; justify-content: center; align-items: center; }
 .uno-mockup-inner { background: white; border-radius: 50%; width: 35px; height: 50px; transform: skewY(-10deg); color: #ff5252; font-weight: bold; font-size: 12px; display: flex; justify-content: center; align-items: center; }
-
-/* CSS Phase Race Cards */
 .phase-card { width: 65px; height: 95px; border-radius: 6px; border: 3px solid white; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 24px; box-shadow: 0 4px 6px rgba(0,0,0,0.4); position: relative; user-select: none; cursor: pointer; transition: 0.2s; }
-.phase-card:hover { transform: translateY(-5px); }
-.phase-card.selected { border-color: #0de0d8; transform: translateY(-10px); box-shadow: 0 0 10px #0de0d8; }
-.phase-card.red { background: #ff5252; color: white; }
-.phase-card.blue { background: #3498db; color: white; }
-.phase-card.green { background: #2ecc71; color: white; }
-.phase-card.yellow { background: #f1c40f; color: white; }
-.phase-card.black { background: #222; color: white; }
+.phase-card:hover { transform: translateY(-5px); } .phase-card.selected { border-color: #0de0d8; transform: translateY(-10px); box-shadow: 0 0 10px #0de0d8; }
+.phase-card.red { background: #ff5252; color: white; } .phase-card.blue { background: #3498db; color: white; } .phase-card.green { background: #2ecc71; color: white; } .phase-card.yellow { background: #f1c40f; color: white; } .phase-card.black { background: #222; color: white; }
 .phase-card-inner { font-size: 26px; text-shadow: 1px 1px 2px rgba(0,0,0,0.5); }
 .phase-card-mockup { width: 50px; height: 70px; background: #2ecc71; border: 3px solid white; border-radius: 5px; margin: 0 auto 10px auto; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 20px; }
-
-/* Color Picker Modal */
 .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 100; justify-content: center; align-items: center; }
-.modal-overlay.active { display: flex; }
-.color-options { display: flex; justify-content: center; gap: 15px; margin-top: 20px; }
-.color-btn { width: 60px; height: 60px; border-radius: 50%; cursor: pointer; border: 4px solid white; transition: 0.2s; }
-.color-btn:hover { transform: scale(1.1); }
-
-/* Daadi & 11 Men's CSS Board Geometry */
+.modal-overlay.active { display: flex; } .color-options { display: flex; justify-content: center; gap: 15px; margin-top: 20px; } .color-btn { width: 60px; height: 60px; border-radius: 50%; cursor: pointer; border: 4px solid white; transition: 0.2s; } .color-btn:hover { transform: scale(1.1); }
 .daadi-mockup { font-size: 2rem; margin-bottom: 10px; background: rgba(0,0,0,0.3); border-radius: 8px; padding: 10px; }
 .daadi-wrapper { position: relative; width: 100%; max-width: 600px; aspect-ratio: 1 / 1; margin: 0 auto; background: #3b4252; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); padding: 20px; overflow: hidden; }
 .daadi-line { position: absolute; border: 3px solid #d4af37; box-sizing: border-box; pointer-events: none; }
-.daadi-line.outer { top: 10%; left: 10%; width: 80%; height: 80%; }
-.daadi-line.mid { top: 30%; left: 30%; width: 40%; height: 40%; }
-.daadi-line.inner { top: 50%; left: 50%; width: 0%; height: 0%; border: none; }
-.daadi-line.true-inner { top: 50%; left: 50%; width: 20%; height: 20%; transform: translate(-50%, -50%); border: 3px solid #d4af37; }
-.daadi-cross { position: absolute; background: #d4af37; pointer-events: none; }
-.daadi-cross.vertical { width: 3px; left: 50%; transform: translateX(-50%); }
-.daadi-cross.horizontal { height: 3px; top: 50%; transform: translateY(-50%); }
-.daadi-cross.top { top: 10%; height: 30%; }
-.daadi-cross.bottom { bottom: 10%; height: 30%; }
-.daadi-cross.left { left: 10%; width: 30%; }
-.daadi-cross.right { right: 10%; width: 30%; }
-
-/* 11 Men's Diagonals */
-.daadi-diagonal { position: absolute; background: #d4af37; pointer-events: none; }
-.daadi-diagonal.tl-br { width: 114%; height: 3px; top: 50%; left: -7%; transform: rotate(45deg); }
-.daadi-diagonal.tr-bl { width: 114%; height: 3px; top: 50%; left: -7%; transform: rotate(-45deg); }
-
+.daadi-line.outer { top: 10%; left: 10%; width: 80%; height: 80%; } .daadi-line.mid { top: 30%; left: 30%; width: 40%; height: 40%; } .daadi-line.true-inner { top: 50%; left: 50%; width: 20%; height: 20%; transform: translate(-50%, -50%); border: 3px solid #d4af37; }
+.daadi-cross { position: absolute; background: #d4af37; pointer-events: none; } .daadi-cross.vertical { width: 3px; left: 50%; transform: translateX(-50%); } .daadi-cross.horizontal { height: 3px; top: 50%; transform: translateY(-50%); } .daadi-cross.top { top: 10%; height: 30%; } .daadi-cross.bottom { bottom: 10%; height: 30%; } .daadi-cross.left { left: 10%; width: 30%; } .daadi-cross.right { right: 10%; width: 30%; }
+.daadi-diagonal { position: absolute; background: #d4af37; pointer-events: none; } .daadi-diagonal.tl-br { width: 114%; height: 3px; top: 50%; left: -7%; transform: rotate(45deg); } .daadi-diagonal.tr-bl { width: 114%; height: 3px; top: 50%; left: -7%; transform: rotate(-45deg); }
 .daadi-node { position: absolute; width: 36px; height: 36px; background: #222; border: 3px solid #d4af37; border-radius: 50%; transform: translate(-50%, -50%); cursor: pointer; display: flex; justify-content: center; align-items: center; font-size: 24px; transition: 0.2s; z-index: 10; }
-.daadi-node:hover { background: #444; transform: translate(-50%, -50%) scale(1.2); }
-.daadi-node.selected { border-color: #0de0d8; box-shadow: 0 0 15px #0de0d8; }
-.daadi-node.removing-target { border-color: #ff5252; box-shadow: 0 0 15px #ff5252; animation: pulse 1s infinite; }
+.daadi-node:hover { background: #444; transform: translate(-50%, -50%) scale(1.2); } .daadi-node.selected { border-color: #0de0d8; box-shadow: 0 0 15px #0de0d8; } .daadi-node.removing-target { border-color: #ff5252; box-shadow: 0 0 15px #ff5252; animation: pulse 1s infinite; }
 
-/* Global Footer */
+/* Sudoku */
+.sudoku-grid { display: grid; grid-template-columns: repeat(9, 1fr); gap: 2px; background: #333; padding: 4px; border: 2px solid #fff; max-width: 450px; margin: 0 auto; }
+.sudoku-cell { width: 100%; aspect-ratio: 1; background: #fff; color: #111; font-size: 1.5rem; font-weight: bold; display: flex; justify-content: center; align-items: center; border: none; text-align: center; }
+.sudoku-cell:focus { outline: 3px solid #0de0d8; z-index: 10; }
+.sudoku-cell.fixed { background: #eee; color: #555; }
+.sudoku-grid > div:nth-child(3n) { border-right: 3px solid #333; }
+.sudoku-grid > div:nth-child(n+19):nth-child(-n+27), .sudoku-grid > div:nth-child(n+46):nth-child(-n+54) { border-bottom: 3px solid #333; }
+
+/* Snakes & Ladders */
+.snakes-grid { display: grid; grid-template-columns: repeat(10, 1fr); width: 100%; max-width: 600px; aspect-ratio: 1; background: #eee; border: 4px solid #fff; position: relative; }
+.snake-cell { border: 1px solid #ccc; display: flex; justify-content: center; align-items: center; font-weight: bold; color: #555; font-size: 0.8rem; position: relative; }
+.snake-cell:nth-child(even) { background: #e0e0e0; }
+.snake-piece { width: 30px; height: 30px; border-radius: 50%; position: absolute; transition: all 0.5s ease-in-out; display: flex; justify-content: center; align-items: center; font-size: 1.2rem; z-index: 20; box-shadow: 0 4px 8px rgba(0,0,0,0.5); }
+.dice { font-size: 4rem; user-select: none; }
+
+/* Ludo */
+.ludo-grid { display: grid; grid-template-columns: repeat(15, 1fr); width: 100%; max-width: 600px; aspect-ratio: 1; background: #fff; border: 4px solid #222; position: relative; }
+.ludo-cell { border: 1px solid #ddd; }
+.ludo-home { grid-column: span 6; grid-row: span 6; display: flex; justify-content: center; align-items: center; }
+.ludo-home-inner { width: 70%; height: 70%; background: #fff; border-radius: 12px; display: flex; flex-wrap: wrap; padding: 10px; gap: 10px; justify-content: center; align-items: center; }
+.ludo-red { background: #ff5252; } .ludo-green { background: #2ecc71; } .ludo-yellow { background: #f1c40f; } .ludo-blue { background: #3498db; }
+.ludo-center { grid-column: 7 / span 3; grid-row: 7 / span 3; background: #444; }
+.ludo-piece { width: 80%; height: 80%; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.5); cursor: pointer; transition: transform 0.2s; }
+.ludo-piece:hover { transform: scale(1.2); }
+
 .global-footer { position: fixed; bottom: 0; left: 0; width: 100%; text-align: center; padding: 12px; font-size: 0.9rem; font-style: italic; color: #a4b0be; background: rgba(43, 50, 60, 0.95); z-index: 1000; border-top: 1px solid rgba(255,255,255,0.05); }
-
 @media (max-width: 900px) { .game-layout { flex-direction: column; align-items: center; } .side-panel { width: 100%; max-width: 600px; } }
