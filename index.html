@@ -9,14 +9,14 @@
 </head>
 <body>
 
-    <!-- SCREEN 1: Game Hub -->
+    <!-- SCREEN 1: Game Hub / Landing Page -->
     <div id="landing-screen" class="screen active">
         <div class="modal" style="max-width: 900px;">
             <h1>Mega Game Hub</h1>
-            <p>Select a game to play!</p>
+            <p>Select a game to start playing with your friends!</p>
             <div class="game-cards">
                 <div class="game-card" id="select-sequence"><h2>Sequence</h2><p>Team board & card game.</p></div>
-                <div class="game-card" id="select-uno"><h2>Color Match</h2><p>Shed your cards!</p></div>
+                <div class="game-card" id="select-uno"><h2>Color Match</h2><p>Fast-paced card shedding.</p></div>
                 <div class="game-card" id="select-daadi"><h2>Daadi (9)</h2><p>9 Men's Morris.</p></div>
                 <div class="game-card" id="select-daadi11"><h2>11 Men's (Diag)</h2><p>11 Coins with diagonals.</p></div>
                 <div class="game-card" id="select-daadi11nd"><h2>11 Men's (Box)</h2><p>11 Coins, no diagonals.</p></div>
@@ -42,7 +42,7 @@
         <div class="modal lobby-modal">
             <h1>Lobby</h1>
             <!-- Dog Pic Fetcher -->
-            <div style="margin: 10px auto; width: 150px; height: 150px; overflow: hidden; border-radius: 50%; border: 4px solid #0de0d8;">
+            <div style="margin: 10px auto; width: 140px; height: 140px; overflow: hidden; border-radius: 50%; border: 4px solid #0de0d8;">
                 <img id="lobby-dog-img" src="" alt="Cute Dog" style="width: 100%; height: 100%; object-fit: cover;">
             </div>
             
@@ -52,35 +52,159 @@
                 <button id="copy-btn">Copy</button>
             </div>
             <div class="lobby-controls"><button class="outline-btn" id="randomize-btn">Randomize Players</button></div>
+            
+            <!-- Team Based Lobby (Sequence) -->
             <div class="teams-container" id="lobby-teams">
                 <div class="team-box blue-team"><h3>Blue Team</h3><div id="blue-dropzone" class="dropzone"></div></div>
                 <div class="team-box red-team"><h3>Red Team</h3><div id="red-dropzone" class="dropzone"></div></div>
                 <div class="team-box green-team"><h3>Green Team</h3><div id="green-dropzone" class="dropzone"></div></div>
             </div>
+
+            <!-- Free-For-All Lobby (Color Match, Daadi, Phase Race, Snakes, Ludo) -->
             <div class="ffa-container" id="lobby-ffa" style="display: none;">
                 <div class="team-box" style="background: #4c566a; max-width: 400px; margin: 0 auto;">
                     <h3>Players</h3><div id="ffa-dropzone" class="dropzone"></div>
                 </div>
             </div>
+
             <button id="start-game-btn" style="display: none;">Start Game</button>
         </div>
     </div>
 
-    <!-- SCREEN: Sudoku (Solo) -->
-    <div id="sudoku-screen" class="screen">
-        <div class="modal" style="max-width: 600px;">
-            <h2>Sudoku</h2>
-            <div style="margin-bottom: 10px;">
-                <button onclick="loadSudoku('easy')">Easy</button>
-                <button onclick="loadSudoku('medium')">Medium</button>
-                <button onclick="loadSudoku('hard')">Complex</button>
+    <!-- SCREEN 4A: Sequence Game Board -->
+    <div id="sequence-screen" class="screen">
+        <div class="game-layout">
+            <div class="board-container"><div id="board"></div></div>
+            <div class="side-panel">
+                <div class="turn-box">
+                    <h2 id="seq-turn-indicator" class="turn-indicator">Waiting...</h2>
+                    <button class="rematch-btn" style="display: none;">Play Rematch</button>
+                </div>
+                <div class="scoreboard">
+                    <h3>Sequences (Goal: 2)</h3>
+                    <div id="score-display">
+                        <span style="color:#ff7675;">Red: <b id="score-red">0</b></span> | 
+                        <span style="color:#3b82f6;">Blue: <b id="score-blue">0</b></span> | 
+                        <span style="color:#27ae60; color:white;">Green: <b id="score-green">0</b></span>
+                    </div>
+                </div>
+                <div class="hand-container">
+                    <h3>Your Hand</h3>
+                    <div id="seq-hand" class="cards-grid"></div>
+                </div>
+                <div class="discard-pile">
+                    <h3>Deck & Discard</h3>
+                    <div class="pile-layout">
+                        <div class="deck-box">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/d/d4/Card_back_01.svg" class="card-img" style="width: 50px;">
+                            <div><span id="seq-cards-left">104</span> left</div>
+                        </div>
+                        <div id="seq-last-discarded"></div>
+                    </div>
+                </div>
             </div>
-            <div id="sudoku-board" class="sudoku-grid"></div>
-            <button onclick="location.reload()" style="margin-top: 15px;">Exit Game</button>
         </div>
     </div>
 
-    <!-- SCREEN: Snakes & Ladders -->
+    <!-- SCREEN 4B: Color Match Game Board -->
+    <div id="uno-screen" class="screen">
+        <div class="uno-layout">
+            <div class="uno-opponents" id="uno-opponents"></div>
+            <div class="uno-table">
+                <div class="turn-box" style="margin-bottom: 20px;">
+                    <h2 id="uno-turn-indicator" class="turn-indicator">Waiting...</h2>
+                    <button class="rematch-btn" style="display: none;">Play Rematch</button>
+                </div>
+                <div class="uno-center-piles">
+                    <div class="uno-deck" id="uno-draw-pile">
+                        <div class="uno-card black"><div class="uno-card-inner"><span class="uno-card-value">DRAW</span></div></div>
+                        <div id="uno-draw-stack-alert" style="color: #ff5252; font-weight: bold; margin-top: 5px;"></div>
+                    </div>
+                    <div class="uno-discard" id="uno-discard-pile"></div>
+                </div>
+            </div>
+            <div class="uno-player-area">
+                <h3>Your Hand</h3>
+                <div id="uno-hand" class="uno-hand-grid"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCREEN 4C: Daadi Game Board -->
+    <div id="daadi-screen" class="screen">
+        <div class="game-layout">
+            <div class="board-container">
+                <div id="daadi-board-container" class="daadi-wrapper">
+                    <div class="daadi-line outer"></div>
+                    <div class="daadi-line mid"></div>
+                    <div class="daadi-line inner"></div>
+                    <div class="daadi-cross vertical top"></div>
+                    <div class="daadi-cross vertical bottom"></div>
+                    <div class="daadi-cross horizontal left"></div>
+                    <div class="daadi-cross horizontal right"></div>
+                    <div id="daadi-diagonals" style="display: none;">
+                        <div class="daadi-diagonal tl-br"></div>
+                        <div class="daadi-diagonal tr-bl"></div>
+                    </div>
+                    <div id="daadi-nodes"></div>
+                </div>
+            </div>
+            <div class="side-panel">
+                <div class="turn-box">
+                    <h2 id="daadi-turn-indicator" class="turn-indicator">Waiting...</h2>
+                    <div id="daadi-action-text" style="margin-top: 10px; font-weight: bold; color: gold;"></div>
+                    <button class="rematch-btn" style="display: none;">Play Rematch</button>
+                </div>
+                <div class="scoreboard">
+                    <h3>Players</h3>
+                    <div id="daadi-players-list" style="margin-top: 15px; font-size: 1.2rem;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCREEN 4D: Phase Race Game Board -->
+    <div id="phase10-screen" class="screen">
+        <div class="game-layout">
+            <div class="board-container" style="flex-direction: column; align-items: center; gap: 20px;">
+                <div class="phase10-table-area">
+                    <div class="uno-center-piles">
+                        <div class="uno-deck" id="phase10-draw-pile">
+                            <div class="phase-card black"><div class="phase-card-inner">DRAW</div></div>
+                        </div>
+                        <div class="uno-discard" id="phase10-discard-pile"></div>
+                    </div>
+                </div>
+
+                <div class="phase10-actions" style="display: flex; gap: 10px; margin-top: 10px;">
+                    <button id="phase10-lay-btn">Lay Down Phase</button>
+                    <button id="phase10-discard-btn" style="background: #ff5252; color: white;">Discard Selected</button>
+                </div>
+
+                <div class="phase10-hand-area" style="width: 100%; text-align: center;">
+                    <h3>Your Hand</h3>
+                    <div id="phase10-hand" class="cards-grid" style="justify-content: center;"></div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="turn-box">
+                    <h2 id="phase10-turn-indicator" class="turn-indicator">Waiting...</h2>
+                    <button class="rematch-btn" style="display: none;">Play Rematch</button>
+                </div>
+                <div class="scoreboard">
+                    <h3>Current Target</h3>
+                    <div id="phase10-target-desc" style="font-weight: bold; color: #0de0d8; margin-top: 5px;"></div>
+                </div>
+                <div class="scoreboard">
+                    <h3>Players Phase Progress</h3>
+                    <div id="phase10-players-list" style="margin-top: 10px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCREEN 4E: Paramapada Sopanam (Snakes & Ladders) -->
     <div id="snakes-screen" class="screen">
         <div class="game-layout">
             <div class="board-container" style="position: relative;">
@@ -92,13 +216,16 @@
                     <div id="snakes-dice" class="dice">🎲</div>
                     <button id="roll-dice-btn" style="width:100%; margin-top:10px;">Roll Dice</button>
                 </div>
-                <div id="snakes-players-list"></div>
+                <div class="scoreboard">
+                    <h3>Player Positions</h3>
+                    <div id="snakes-players-list" style="margin-top:10px;"></div>
+                </div>
                 <button class="rematch-btn" style="display: none;">Play Rematch</button>
             </div>
         </div>
     </div>
 
-    <!-- SCREEN: Ludo -->
+    <!-- SCREEN 4F: Ludo -->
     <div id="ludo-screen" class="screen">
         <div class="game-layout">
             <div class="board-container">
@@ -110,22 +237,41 @@
                     <div id="ludo-dice" class="dice">🎲</div>
                     <button id="ludo-roll-btn" style="width:100%; margin-top:10px;">Roll Dice</button>
                 </div>
-                <div id="ludo-players-list"></div>
+                <div class="scoreboard">
+                    <h3>Player Tokens</h3>
+                    <div id="ludo-players-list" style="margin-top:10px;"></div>
+                </div>
                 <button class="rematch-btn" style="display: none;">Play Rematch</button>
             </div>
         </div>
     </div>
 
-    <!-- (Existing Screens for Sequence, Uno, Daadi, Phase10 remain identical structure, abbreviated here to save characters, but use your exact HTML blocks from before for those 4 screens) -->
-    <div id="sequence-screen" class="screen"><div class="game-layout"><div class="board-container"><div id="board"></div></div><div class="side-panel"><div class="turn-box"><h2 id="seq-turn-indicator" class="turn-indicator">Waiting...</h2><button class="rematch-btn" style="display: none;">Play Rematch</button></div><div class="scoreboard"><h3>Sequences (Goal: 2)</h3><div id="score-display"><span style="color:#ff7675;">Red: <b id="score-red">0</b></span> | <span style="color:#3b82f6;">Blue: <b id="score-blue">0</b></span> | <span style="color:#27ae60; color:white;">Green: <b id="score-green">0</b></span></div></div><div class="hand-container"><h3>Your Hand</h3><div id="seq-hand" class="cards-grid"></div></div><div class="discard-pile"><h3>Deck & Discard</h3><div class="pile-layout"><div class="deck-box"><img src="https://upload.wikimedia.org/wikipedia/commons/d/d4/Card_back_01.svg" class="card-img" style="width: 50px;"><div><span id="seq-cards-left">104</span> left</div></div><div id="seq-last-discarded"></div></div></div></div></div></div>
-    
-    <div id="uno-screen" class="screen"><div class="uno-layout"><div class="uno-opponents" id="uno-opponents"></div><div class="uno-table"><div class="turn-box" style="margin-bottom: 20px;"><h2 id="uno-turn-indicator" class="turn-indicator">Waiting...</h2><button class="rematch-btn" style="display: none;">Play Rematch</button></div><div class="uno-center-piles"><div class="uno-deck" id="uno-draw-pile"><div class="uno-card black"><div class="uno-card-inner"><span class="uno-card-value">DRAW</span></div></div><div id="uno-draw-stack-alert" style="color: #ff5252; font-weight: bold; margin-top: 5px;"></div></div><div class="uno-discard" id="uno-discard-pile"></div></div></div><div class="uno-player-area"><h3>Your Hand</h3><div id="uno-hand" class="uno-hand-grid"></div></div></div></div>
+    <!-- SCREEN 4G: Sudoku (Solo) -->
+    <div id="sudoku-screen" class="screen">
+        <div class="modal" style="max-width: 600px;">
+            <h2>Solo Sudoku</h2>
+            <div style="margin-bottom: 15px;">
+                <button onclick="loadSudoku('easy')">Easy</button>
+                <button onclick="loadSudoku('medium')">Medium</button>
+                <button onclick="loadSudoku('hard')">Complex</button>
+            </div>
+            <div id="sudoku-board" class="sudoku-grid"></div>
+            <button onclick="location.reload()" style="margin-top: 20px; background:#ff5252; color:white;">Exit to Main Hub</button>
+        </div>
+    </div>
 
-    <div id="daadi-screen" class="screen"><div class="game-layout"><div class="board-container"><div id="daadi-board-container" class="daadi-wrapper"><div class="daadi-line outer"></div><div class="daadi-line mid"></div><div class="daadi-line inner"></div><div class="daadi-cross vertical top"></div><div class="daadi-cross vertical bottom"></div><div class="daadi-cross horizontal left"></div><div class="daadi-cross horizontal right"></div><div id="daadi-diagonals" style="display: none;"><div class="daadi-diagonal tl-br"></div><div class="daadi-diagonal tr-bl"></div></div><div id="daadi-nodes"></div></div></div><div class="side-panel"><div class="turn-box"><h2 id="daadi-turn-indicator" class="turn-indicator">Waiting...</h2><div id="daadi-action-text" style="margin-top: 10px; font-weight: bold; color: gold;"></div><button class="rematch-btn" style="display: none;">Play Rematch</button></div><div class="scoreboard"><h3>Players</h3><div id="daadi-players-list" style="margin-top: 15px; font-size: 1.2rem;"></div></div></div></div></div>
-
-    <div id="phase10-screen" class="screen"><div class="game-layout"><div class="board-container" style="flex-direction: column; align-items: center; gap: 20px;"><div class="phase10-table-area"><div class="uno-center-piles"><div class="uno-deck" id="phase10-draw-pile"><div class="phase-card black"><div class="phase-card-inner">DRAW</div></div></div><div class="uno-discard" id="phase10-discard-pile"></div></div></div><div class="phase10-actions" style="display: flex; gap: 10px; margin-top: 10px;"><button id="phase10-lay-btn">Lay Down Phase</button><button id="phase10-discard-btn" style="background: #ff5252; color: white;">Discard Selected</button></div><div class="phase10-hand-area" style="width: 100%; text-align: center;"><h3>Your Hand</h3><div id="phase10-hand" class="cards-grid" style="justify-content: center;"></div></div></div><div class="side-panel"><div class="turn-box"><h2 id="phase10-turn-indicator" class="turn-indicator">Waiting...</h2><button class="rematch-btn" style="display: none;">Play Rematch</button></div><div class="scoreboard"><h3>Current Target</h3><div id="phase10-target-desc" style="font-weight: bold; color: #0de0d8; margin-top: 5px;"></div></div><div class="scoreboard"><h3>Players Phase Progress</h3><div id="phase10-players-list" style="margin-top: 10px;"></div></div></div></div></div>
-
-    <div id="color-picker-modal" class="modal-overlay"><div class="modal"><h2>Pick a Color</h2><div class="color-options"><div class="color-btn" data-color="red" style="background: #ff5252;"></div><div class="color-btn" data-color="blue" style="background: #3498db;"></div><div class="color-btn" data-color="green" style="background: #2ecc71;"></div><div class="color-btn" data-color="yellow" style="background: #f1c40f;"></div></div></div></div>
+    <!-- Color Picker Modal -->
+    <div id="color-picker-modal" class="modal-overlay">
+        <div class="modal">
+            <h2>Pick a Color</h2>
+            <div class="color-options">
+                <div class="color-btn" data-color="red" style="background: #ff5252;"></div>
+                <div class="color-btn" data-color="blue" style="background: #3498db;"></div>
+                <div class="color-btn" data-color="green" style="background: #2ecc71;"></div>
+                <div class="color-btn" data-color="yellow" style="background: #f1c40f;"></div>
+            </div>
+        </div>
+    </div>
 
     <!-- Audios -->
     <audio id="turn-sound" src="https://assets.mixkit.co/active_storage/sfx/2574/2574-preview.mp3" preload="auto"></audio>
