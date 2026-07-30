@@ -10,7 +10,7 @@ button:hover { background: #0bc4bd; }
 .outline-btn { background: transparent; border: 2px solid #0de0d8; color: #0de0d8; }
 .rematch-btn { width: 100%; margin-top: 10px; padding: 10px; background: #0de0d8; border-radius: 6px; color: #333; }
 
-/* Landing Page Cards */
+/* Landing Page */
 .game-cards { display: flex; gap: 15px; justify-content: center; margin-top: 20px; flex-wrap: wrap; }
 .game-card { background: #4c566a; padding: 15px; border-radius: 10px; cursor: pointer; transition: 0.2s; width: 160px; border: 2px solid transparent; text-align: center; }
 .game-card:hover { transform: translateY(-5px); border-color: #0de0d8; }
@@ -31,13 +31,14 @@ button:hover { background: #0bc4bd; }
 @keyframes pulse-turn { 0% { transform: scale(1); box-shadow: 0 0 0px #0de0d8; } 50% { transform: scale(1.05); box-shadow: 0 0 20px #0de0d8; } 100% { transform: scale(1); box-shadow: 0 0 0px #0de0d8; } }
 .my-turn-pulse { animation: pulse-turn 1.5s infinite; background: #0de0d8 !important; color: #111 !important; }
 
-/* Sequence Board & General Side Panel */
-.game-layout { display: flex; flex-direction: row; gap: 30px; width: 100%; max-width: 1400px; padding: 20px; align-items: flex-start; margin-top: 20px; }
-.board-container { flex: 2; display: flex; justify-content: center; }
-#board { display: grid; grid-template-columns: repeat(10, 1fr); gap: 2px; background: #0de0d8; padding: 4px; width: 100%; max-width: 75vh; aspect-ratio: 1 / 1; margin: 0 auto; border-radius: 8px; }
+/* Layout Grid Fix */
+.game-layout { display: flex; flex-direction: row; gap: 30px; width: 100%; max-width: 1300px; padding: 20px; align-items: flex-start; justify-content: center; flex-wrap: wrap; }
+.board-container { flex: 1; min-width: 320px; max-width: 550px; display: flex; justify-content: center; }
+.side-panel { flex: 0 0 320px; background: #2b323c; padding: 20px; border-radius: 12px; display: flex; flex-direction: column; gap: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
+
+#board { display: grid; grid-template-columns: repeat(10, 1fr); gap: 2px; background: #0de0d8; padding: 4px; width: 100%; aspect-ratio: 1; border-radius: 8px; }
 .board-space { background: #fff; display: flex; justify-content: center; align-items: center; position: relative; overflow: hidden; cursor: pointer; border-radius: 4px; }
 .card-img { width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
-.side-panel { flex: 1; background: #2b323c; padding: 25px; border-radius: 12px; display: flex; flex-direction: column; gap: 25px; min-width: 300px; }
 .scoreboard { font-size: 1.1rem; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; }
 #score-display { margin-top: 10px; display: flex; justify-content: space-between; font-weight: bold; }
 .cards-grid { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-start; }
@@ -47,11 +48,11 @@ button:hover { background: #0bc4bd; }
 .deck-box { text-align: center; font-size: 0.9rem; }
 #seq-last-discarded { display: flex; gap: 5px; } .discarded-card { width: 45px; height: 63px; border-radius: 4px; }
 
-/* Color Match Layout */
-.uno-layout { display: flex; flex-direction: column; width: 100%; max-width: 1200px; padding: 20px; gap: 30px; height: 90vh; }
+/* Color Match */
+.uno-layout { display: flex; flex-direction: column; width: 100%; max-width: 1200px; padding: 20px; gap: 30px; }
 .uno-opponents { display: flex; justify-content: center; gap: 20px; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; }
 .uno-opponent { text-align: center; background: #3b4252; padding: 10px 20px; border-radius: 8px; font-weight: bold; }
-.uno-table { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+.uno-table { display: flex; flex-direction: column; justify-content: center; align-items: center; }
 .uno-center-piles { display: flex; gap: 40px; align-items: center; }
 .uno-deck { text-align: center; cursor: pointer; transition: 0.2s; } .uno-deck:hover { transform: translateY(-5px); }
 .uno-player-area { background: rgba(0,0,0,0.2); padding: 20px; border-radius: 8px; text-align: center; }
@@ -73,8 +74,8 @@ button:hover { background: #0bc4bd; }
 .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 100; justify-content: center; align-items: center; }
 .modal-overlay.active { display: flex; } .color-options { display: flex; justify-content: center; gap: 15px; margin-top: 20px; } .color-btn { width: 60px; height: 60px; border-radius: 50%; cursor: pointer; border: 4px solid white; transition: 0.2s; } .color-btn:hover { transform: scale(1.1); }
 
-/* Daadi & 11 Men's Geometry */
-.daadi-wrapper { position: relative; width: 100%; max-width: 600px; aspect-ratio: 1 / 1; margin: 0 auto; background: #3b4252; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); padding: 20px; overflow: hidden; }
+/* Daadi & 11 Men's */
+.daadi-wrapper { position: relative; width: 100%; max-width: 550px; aspect-ratio: 1; margin: 0 auto; background: #3b4252; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); padding: 20px; overflow: hidden; }
 .daadi-line { position: absolute; border: 3px solid #d4af37; box-sizing: border-box; pointer-events: none; }
 .daadi-line.outer { top: 10%; left: 10%; width: 80%; height: 80%; } .daadi-line.mid { top: 30%; left: 30%; width: 40%; height: 40%; } .daadi-line.true-inner { top: 50%; left: 50%; width: 20%; height: 20%; transform: translate(-50%, -50%); border: 3px solid #d4af37; }
 .daadi-cross { position: absolute; background: #d4af37; pointer-events: none; } .daadi-cross.vertical { width: 3px; left: 50%; transform: translateX(-50%); } .daadi-cross.horizontal { height: 3px; top: 50%; transform: translateY(-50%); } .daadi-cross.top { top: 10%; height: 30%; } .daadi-cross.bottom { bottom: 10%; height: 30%; } .daadi-cross.left { left: 10%; width: 30%; } .daadi-cross.right { right: 10%; width: 30%; }
@@ -82,26 +83,47 @@ button:hover { background: #0bc4bd; }
 .daadi-node { position: absolute; width: 36px; height: 36px; background: #222; border: 3px solid #d4af37; border-radius: 50%; transform: translate(-50%, -50%); cursor: pointer; display: flex; justify-content: center; align-items: center; font-size: 24px; transition: 0.2s; z-index: 10; }
 .daadi-node:hover { background: #444; transform: translate(-50%, -50%) scale(1.2); } .daadi-node.selected { border-color: #0de0d8; box-shadow: 0 0 15px #0de0d8; } .daadi-node.removing-target { border-color: #ff5252; box-shadow: 0 0 15px #ff5252; animation: pulse 1s infinite; }
 
-/* Sudoku */
-.sudoku-grid { display: grid; grid-template-columns: repeat(9, 1fr); gap: 2px; background: #333; padding: 4px; border: 2px solid #fff; max-width: 450px; margin: 0 auto; }
-.sudoku-cell { width: 100%; aspect-ratio: 1; background: #fff; color: #111; font-size: 1.5rem; font-weight: bold; display: flex; justify-content: center; align-items: center; border: none; text-align: center; }
-.sudoku-cell:focus { outline: 3px solid #0de0d8; z-index: 10; }
-.sudoku-cell.fixed { background: #eee; color: #555; }
+/* Sudoku Fixes */
+.sudoku-grid { display: grid; grid-template-columns: repeat(9, 1fr); gap: 1px; background: #222; padding: 4px; border: 4px solid #fff; width: 100%; max-width: 450px; margin: 0 auto; border-radius: 6px; }
+.sudoku-cell { width: 100%; aspect-ratio: 1; background: #fff; color: #111; font-size: 1.4rem; font-weight: bold; display: flex; justify-content: center; align-items: center; border: 1px solid #ddd; text-align: center; border-radius: 0; }
+.sudoku-cell:focus { outline: 3px solid #0de0d8; z-index: 10; background: #e0f7fa; }
+.sudoku-cell.fixed { background: #3b4252; color: #0de0d8; }
 
-/* Snakes & Ladders */
-.snakes-grid { display: grid; grid-template-columns: repeat(10, 1fr); width: 100%; max-width: 600px; aspect-ratio: 1; background: #eee; border: 4px solid #fff; position: relative; }
-.snake-cell { border: 1px solid #ccc; display: flex; justify-content: center; align-items: center; font-weight: bold; color: #555; font-size: 0.8rem; position: relative; }
-.snake-cell:nth-child(even) { background: #e0e0e0; }
-.snake-piece { width: 30px; height: 30px; border-radius: 50%; position: absolute; transition: all 0.5s ease-in-out; display: flex; justify-content: center; align-items: center; font-size: 1.2rem; z-index: 20; box-shadow: 0 4px 8px rgba(0,0,0,0.5); }
+/* 3x3 Subgrid Bold Borders */
+.sudoku-grid > input:nth-child(3n) { border-right: 3px solid #222; }
+.sudoku-grid > input:nth-child(9n+1) { border-left: 2px solid #222; }
+.sudoku-grid > input:nth-child(n+19):nth-child(-n+27), .sudoku-grid > input:nth-child(n+46):nth-child(-n+54) { border-bottom: 3px solid #222; }
+
+/* Snakes & Ladders Board */
+.snakes-grid { display: grid; grid-template-columns: repeat(10, 1fr); width: 100%; max-width: 550px; aspect-ratio: 1; background: #2b323c; border: 4px solid #fff; border-radius: 8px; overflow: hidden; }
+.snake-cell { border: 1px solid #444; display: flex; justify-content: center; align-items: center; font-weight: bold; color: #fff; font-size: 0.85rem; position: relative; background: #3b4252; }
+.snake-cell:nth-child(even) { background: #4c566a; }
+.snake-piece { width: 28px; height: 28px; border-radius: 50%; position: absolute; transition: all 0.4s ease-in-out; display: flex; justify-content: center; align-items: center; font-size: 1.2rem; z-index: 20; background: rgba(0,0,0,0.6); border: 2px solid white; box-shadow: 0 4px 8px rgba(0,0,0,0.5); }
 .dice { font-size: 4rem; user-select: none; }
 
-/* Ludo 15x15 Grid Layout */
-.ludo-grid { display: grid; grid-template-columns: repeat(15, 1fr); grid-template-rows: repeat(15, 1fr); width: 100%; max-width: 600px; aspect-ratio: 1; background: #fff; border: 4px solid #222; position: relative; }
-.ludo-cell { border: 1px solid #eee; display: flex; justify-content: center; align-items: center; position: relative; }
-.ludo-cell.red-home { background: #ff5252; } .ludo-cell.green-home { background: #2ecc71; } .ludo-cell.yellow-home { background: #f1c40f; } .ludo-cell.blue-home { background: #3498db; }
-.ludo-cell.center-box { background: #333; }
-.ludo-piece-token { width: 80%; height: 80%; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.5); cursor: pointer; transition: transform 0.2s; z-index: 10; }
-.ludo-piece-token:hover { transform: scale(1.2); }
+/* Authentic 15x15 Ludo Board */
+.ludo-grid { display: grid; grid-template-columns: repeat(15, 1fr); grid-template-rows: repeat(15, 1fr); width: 100%; max-width: 550px; aspect-ratio: 1; background: #fff; border: 4px solid #222; border-radius: 8px; overflow: hidden; position: relative; }
+.ludo-cell { border: 1px solid #ccc; display: flex; justify-content: center; align-items: center; position: relative; font-size: 0.8rem; }
+
+/* 6x6 Home Bases */
+.ludo-base { grid-span: 6; display: flex; justify-content: center; align-items: center; padding: 15px; }
+.ludo-base.red { grid-column: 1 / span 6; grid-row: 1 / span 6; background: #ff5252; }
+.ludo-base.green { grid-column: 10 / span 6; grid-row: 1 / span 6; background: #2ecc71; }
+.ludo-base.yellow { grid-column: 10 / span 6; grid-row: 10 / span 6; background: #f1c40f; }
+.ludo-base.blue { grid-column: 1 / span 6; grid-row: 10 / span 6; background: #3498db; }
+
+.ludo-base-inner { width: 100%; height: 100%; background: #fff; border-radius: 12px; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; padding: 10px; gap: 10px; }
+.ludo-token-spot { border-radius: 50%; border: 3px dashed #ccc; display: flex; justify-content: center; align-items: center; }
+
+/* Center Home Triangles */
+.ludo-center-box { grid-column: 7 / span 3; grid-row: 7 / span 3; background: #fff; position: relative; border: 2px solid #222; }
+.ludo-tri-red { position: absolute; top:0; left:0; width:0; height:0; border-top: 35px solid #ff5252; border-right: 35px solid transparent; border-bottom: 35px solid transparent; border-left: 35px solid #ff5252; }
+.ludo-tri-green { position: absolute; top:0; right:0; width:0; height:0; border-top: 35px solid #2ecc71; border-right: 35px solid #2ecc71; border-bottom: 35px solid transparent; border-left: 35px solid transparent; }
+.ludo-tri-yellow { position: absolute; bottom:0; right:0; width:0; height:0; border-top: 35px solid transparent; border-right: 35px solid #f1c40f; border-bottom: 35px solid #f1c40f; border-left: 35px solid transparent; }
+.ludo-tri-blue { position: absolute; bottom:0; left:0; width:0; height:0; border-top: 35px solid transparent; border-right: 35px solid transparent; border-bottom: 35px solid #3498db; border-left: 35px solid #3498db; }
+
+.ludo-pawn { width: 24px; height: 24px; border-radius: 50%; border: 2px solid white; box-shadow: 0 3px 6px rgba(0,0,0,0.4); cursor: pointer; transition: transform 0.2s; position: absolute; z-index: 25; }
+.ludo-pawn:hover { transform: scale(1.3); }
 
 .global-footer { position: fixed; bottom: 0; left: 0; width: 100%; text-align: center; padding: 12px; font-size: 0.9rem; font-style: italic; color: #a4b0be; background: rgba(43, 50, 60, 0.95); z-index: 1000; border-top: 1px solid rgba(255,255,255,0.05); }
-@media (max-width: 900px) { .game-layout { flex-direction: column; align-items: center; } .side-panel { width: 100%; max-width: 600px; } }
+@media (max-width: 900px) { .game-layout { flex-direction: column; align-items: center; } .side-panel { width: 100%; max-width: 550px; } }
