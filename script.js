@@ -1,4 +1,4 @@
-const backendUrl = "https://hitachi-slope-discretion-atlas.trycloudflare.com"; 
+const backendUrl = "https://excitement-person-controls-harder.trycloudflare.com"; 
 
 
 const socket = io(backendUrl);
