@@ -28,11 +28,7 @@ button:hover { background: #0bc4bd; }
 
 /* Visual Alerts */
 .turn-indicator { margin: 0; text-align: center; padding: 10px; border-radius: 6px; transition: 0.3s; }
-@keyframes pulse-turn { 
-    0% { transform: scale(1); box-shadow: 0 0 0px #0de0d8; } 
-    50% { transform: scale(1.05); box-shadow: 0 0 20px #0de0d8; } 
-    100% { transform: scale(1); box-shadow: 0 0 0px #0de0d8; } 
-}
+@keyframes pulse-turn { 0% { transform: scale(1); box-shadow: 0 0 0px #0de0d8; } 50% { transform: scale(1.05); box-shadow: 0 0 20px #0de0d8; } 100% { transform: scale(1); box-shadow: 0 0 0px #0de0d8; } }
 .my-turn-pulse { animation: pulse-turn 1.5s infinite; background: #0de0d8 !important; color: #111 !important; }
 
 /* Sequence Board */
@@ -97,9 +93,9 @@ button:hover { background: #0bc4bd; }
 .color-btn { width: 60px; height: 60px; border-radius: 50%; cursor: pointer; border: 4px solid white; transition: 0.2s; }
 .color-btn:hover { transform: scale(1.1); }
 
-/* Daadi CSS Board Geometry */
+/* Daadi & 11 Men's CSS Board Geometry */
 .daadi-mockup { font-size: 2rem; margin-bottom: 10px; background: rgba(0,0,0,0.3); border-radius: 8px; padding: 10px; }
-.daadi-wrapper { position: relative; width: 100%; max-width: 600px; aspect-ratio: 1 / 1; margin: 0 auto; background: #3b4252; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); padding: 20px; }
+.daadi-wrapper { position: relative; width: 100%; max-width: 600px; aspect-ratio: 1 / 1; margin: 0 auto; background: #3b4252; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); padding: 20px; overflow: hidden; }
 .daadi-line { position: absolute; border: 3px solid #d4af37; box-sizing: border-box; pointer-events: none; }
 .daadi-line.outer { top: 10%; left: 10%; width: 80%; height: 80%; }
 .daadi-line.mid { top: 30%; left: 30%; width: 40%; height: 40%; }
@@ -112,6 +108,11 @@ button:hover { background: #0bc4bd; }
 .daadi-cross.bottom { bottom: 10%; height: 30%; }
 .daadi-cross.left { left: 10%; width: 30%; }
 .daadi-cross.right { right: 10%; width: 30%; }
+
+/* 11 Men's Diagonals */
+.daadi-diagonal { position: absolute; background: #d4af37; pointer-events: none; }
+.daadi-diagonal.tl-br { width: 114%; height: 3px; top: 50%; left: -7%; transform: rotate(45deg); }
+.daadi-diagonal.tr-bl { width: 114%; height: 3px; top: 50%; left: -7%; transform: rotate(-45deg); }
 
 .daadi-node { position: absolute; width: 36px; height: 36px; background: #222; border: 3px solid #d4af37; border-radius: 50%; transform: translate(-50%, -50%); cursor: pointer; display: flex; justify-content: center; align-items: center; font-size: 24px; transition: 0.2s; z-index: 10; }
 .daadi-node:hover { background: #444; transform: translate(-50%, -50%) scale(1.2); }
