@@ -41,8 +41,7 @@
     <div id="lobby-screen" class="screen">
         <div class="modal lobby-modal">
             <h1>Lobby</h1>
-            <!-- Dog Pic Fetcher -->
-            <div style="margin: 10px auto; width: 140px; height: 140px; overflow: hidden; border-radius: 50%; border: 4px solid #0de0d8;">
+            <div style="margin: 10px auto; width: 130px; height: 130px; overflow: hidden; border-radius: 50%; border: 4px solid #0de0d8;">
                 <img id="lobby-dog-img" src="" alt="Cute Dog" style="width: 100%; height: 100%; object-fit: cover;">
             </div>
             
@@ -53,14 +52,12 @@
             </div>
             <div class="lobby-controls"><button class="outline-btn" id="randomize-btn">Randomize Players</button></div>
             
-            <!-- Team Based Lobby (Sequence) -->
             <div class="teams-container" id="lobby-teams">
                 <div class="team-box blue-team"><h3>Blue Team</h3><div id="blue-dropzone" class="dropzone"></div></div>
                 <div class="team-box red-team"><h3>Red Team</h3><div id="red-dropzone" class="dropzone"></div></div>
                 <div class="team-box green-team"><h3>Green Team</h3><div id="green-dropzone" class="dropzone"></div></div>
             </div>
 
-            <!-- Free-For-All Lobby (Color Match, Daadi, Phase Race, Snakes, Ludo) -->
             <div class="ffa-container" id="lobby-ffa" style="display: none;">
                 <div class="team-box" style="background: #4c566a; max-width: 400px; margin: 0 auto;">
                     <h3>Players</h3><div id="ffa-dropzone" class="dropzone"></div>
@@ -71,7 +68,7 @@
         </div>
     </div>
 
-    <!-- SCREEN 4A: Sequence Game Board -->
+    <!-- SCREEN 4A: Sequence -->
     <div id="sequence-screen" class="screen">
         <div class="game-layout">
             <div class="board-container"><div id="board"></div></div>
@@ -106,7 +103,7 @@
         </div>
     </div>
 
-    <!-- SCREEN 4B: Color Match Game Board -->
+    <!-- SCREEN 4B: Color Match -->
     <div id="uno-screen" class="screen">
         <div class="uno-layout">
             <div class="uno-opponents" id="uno-opponents"></div>
@@ -130,7 +127,7 @@
         </div>
     </div>
 
-    <!-- SCREEN 4C: Daadi Game Board -->
+    <!-- SCREEN 4C: Daadi -->
     <div id="daadi-screen" class="screen">
         <div class="game-layout">
             <div class="board-container">
@@ -163,7 +160,7 @@
         </div>
     </div>
 
-    <!-- SCREEN 4D: Phase Race Game Board -->
+    <!-- SCREEN 4D: Phase Race -->
     <div id="phase10-screen" class="screen">
         <div class="game-layout">
             <div class="board-container" style="flex-direction: column; align-items: center; gap: 20px;">
@@ -208,7 +205,10 @@
     <div id="snakes-screen" class="screen">
         <div class="game-layout">
             <div class="board-container" style="position: relative;">
-                <div id="snakes-board" class="snakes-grid"></div>
+                <div id="snakes-board-wrapper" style="position: relative; width: 100%; max-width: 550px; aspect-ratio: 1;">
+                    <div id="snakes-board" class="snakes-grid"></div>
+                    <svg id="snakes-svg-overlay" style="position: absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index: 15;"></svg>
+                </div>
             </div>
             <div class="side-panel">
                 <h2 id="snakes-turn-indicator" class="turn-indicator">Waiting...</h2>
@@ -248,7 +248,7 @@
 
     <!-- SCREEN 4G: Sudoku (Solo) -->
     <div id="sudoku-screen" class="screen">
-        <div class="modal" style="max-width: 600px;">
+        <div class="modal" style="max-width: 550px;">
             <h2>Solo Sudoku</h2>
             <div style="margin-bottom: 15px;">
                 <button onclick="loadSudoku('easy')">Easy</button>
@@ -256,7 +256,10 @@
                 <button onclick="loadSudoku('hard')">Complex</button>
             </div>
             <div id="sudoku-board" class="sudoku-grid"></div>
-            <button onclick="location.reload()" style="margin-top: 20px; background:#ff5252; color:white;">Exit to Main Hub</button>
+            <div style="margin-top:15px;">
+                <button onclick="checkSudokuSolution()" style="background:#0de0d8; color:#333;">Check Solution</button>
+                <button onclick="location.reload()" style="background:#ff5252; color:white;">Exit to Main Hub</button>
+            </div>
         </div>
     </div>
 
