@@ -252,39 +252,97 @@ function createPhaseCard(c) { const el = document.createElement('div'); el.class
 function getPhaseDescription(phase) { const desc = [ "", "2 sets of 3", "1 set of 3 + 1 run of 4", "1 set of 4 + 1 run of 4", "1 run of 7", "1 run of 8", "1 run of 9", "2 sets of 4", "7 cards of 1 color", "1 set of 5 + 1 set of 2", "1 set of 5 + 1 set of 3" ]; return desc[phase] || ""; }
 
 // --- SUDOKU (SOLO) ---
+let currentSudokuSolution = "";
 function loadSudoku(diff) {
     const board = document.getElementById('sudoku-board'); board.innerHTML = '';
     const puzzles = {
-        'easy': "530070000600195000098000060800060003400803001700020006060000280000419005000080079",
-        'medium': "000000000000003085001020000000507000004000100090000000500000073002010000000040009",
-        'hard': "000600400700003600000091080000000000050180003000306045040200060903000000020000100"
+        'easy': { p: "530070000600195000098000060800060003400803001700020006060000280000419005000080079", s: "534678912672195348198342567859761423426853791713924856961537284287419635345286179" },
+        'medium': { p: "000000000000003085001020000000507000004000100090000000500000073002010000000040009", s: "387491625246753981951826437123547896764982153895164720518239073432615900079048009" },
+        'hard': { p: "000600400700003600000091080000000000050180003000306045040200060903000000020000100", s: "381652497792483615465791283839247516257189043100306045148235960903800000020000100" }
     };
-    let grid = puzzles[diff].split('');
-    grid.forEach(val => {
-        const input = document.createElement('input'); input.type = "text"; input.maxLength = 1; input.className = 'sudoku-cell';
+    currentSudokuSolution = puzzles[diff].s;
+    let grid = puzzles[diff].p.split('');
+    grid.forEach((val, idx) => {
+        const input = document.createElement('input'); input.type = "text"; input.maxLength = 1; input.className = 'sudoku-cell'; input.dataset.index = idx;
         if (val !== '0') { input.value = val; input.disabled = true; input.classList.add('fixed'); }
         input.oninput = (e) => { if(!/^[1-9]$/.test(e.target.value)) e.target.value = ''; };
         board.appendChild(input);
     });
 }
 
+function checkSudokuSolution() {
+    const inputs = document.querySelectorAll('.sudoku-cell');
+    let userStr = "";
+    inputs.forEach(i => userStr += i.value || '0');
+    if (userStr === currentSudokuSolution) alert("🎉 CONGRATULATIONS! You solved the Sudoku puzzle!");
+    else alert("❌ Not quite right yet! Keep trying!");
+}
+
 // --- SNAKES & LADDERS (PARAMAPADA) ---
+const SNAKES_MAP = { 16:6, 47:26, 49:11, 56:53, 62:19, 64:60, 87:24, 93:73, 95:75, 98:78 };
+const LADDERS_MAP = { 1:38, 4:14, 9:31, 21:42, 28:84, 36:44, 51:67, 71:91, 80:100 };
+
+function drawSnakeLadderLines() {
+    const svg = document.getElementById('snakes-svg-overlay');
+    if (!svg) return;
+    svg.innerHTML = '';
+    
+    function getCellCenter(boxNum) {
+        const cell = document.getElementById(`sc-${boxNum}`);
+        if (!cell) return null;
+        const boardRect = document.getElementById('snakes-board-wrapper').getBoundingClientRect();
+        const cellRect = cell.getBoundingClientRect();
+        return {
+            x: cellRect.left - boardRect.left + cellRect.width / 2,
+            y: cellRect.top - boardRect.top + cellRect.height / 2
+        };
+    }
+
+    // Draw Ladders (Gold lines)
+    Object.keys(LADDERS_MAP).forEach(start => {
+        const p1 = getCellCenter(start); const p2 = getCellCenter(LADDERS_MAP[start]);
+        if (p1 && p2) {
+            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            line.setAttribute('x1', p1.x); line.setAttribute('y1', p1.y);
+            line.setAttribute('x2', p2.x); line.setAttribute('y2', p2.y);
+            line.setAttribute('stroke', '#f1c40f'); line.setAttribute('stroke-width', '6');
+            line.setAttribute('stroke-linecap', 'round');
+            svg.appendChild(line);
+        }
+    });
+
+    // Draw Snakes (Red/Green curves)
+    Object.keys(SNAKES_MAP).forEach(start => {
+        const p1 = getCellCenter(start); const p2 = getCellCenter(SNAKES_MAP[start]);
+        if (p1 && p2) {
+            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            const midX = (p1.x + p2.x) / 2 + 30; const midY = (p1.y + p2.y) / 2 - 20;
+            path.setAttribute('d', `M ${p1.x} ${p1.y} Q ${midX} ${midY} ${p2.x} ${p2.y}`);
+            path.setAttribute('stroke', '#ff5252'); path.setAttribute('stroke-width', '5');
+            path.setAttribute('fill', 'none'); path.setAttribute('stroke-dasharray', '6,3');
+            svg.appendChild(path);
+        }
+    });
+}
+
 function renderSnakes(data, isMyTurn) {
     const board = document.getElementById('snakes-board');
     if (board.children.length === 0) {
-        for(let i=100; i>=1; i--) {
-            let row = Math.floor((i-1)/10);
-            let displayNum = (row % 2 === 0) ? i : (row*10) + (10 - (i-1)%10);
-            const cell = document.createElement('div'); cell.className = 'snake-cell'; cell.id = `sc-${displayNum}`; cell.innerText = displayNum;
-            if ([16,47,49,56,62,64,87,93,95,98].includes(displayNum)) cell.innerText += ' 🐍';
-            if ([1,4,9,21,28,36,51,71,80].includes(displayNum)) cell.innerText += ' 🪜';
-            board.appendChild(cell);
+        for(let row = 9; row >= 0; row--) {
+            for(let col = 0; col < 10; col++) {
+                let boxNum = (row % 2 === 1) ? (row * 10) + (10 - col) : (row * 10) + (col + 1);
+                const cell = document.createElement('div'); cell.className = 'snake-cell'; cell.id = `sc-${boxNum}`; cell.innerText = boxNum;
+                if (SNAKES_MAP[boxNum]) cell.innerText += ' 🐍';
+                if (LADDERS_MAP[boxNum]) cell.innerText += ' 🪜';
+                board.appendChild(cell);
+            }
         }
+        setTimeout(drawSnakeLadderLines, 200);
     }
     
     const turnInd = document.getElementById('snakes-turn-indicator'); turnInd.className = 'turn-indicator';
-    if (isGameOver) { turnInd.innerText = "GAME OVER"; turnInd.style.background = "#222"; } 
-    else { turnInd.innerText = isMyTurn ? "Your Turn!" : `${data.turnPlayer}'s Turn`; if (isMyTurn) turnInd.classList.add('my-turn-pulse'); else turnInd.style.background = "#444"; }
+    if (isGameOver) { turnInd.innerText = "GAME OVER"; turnInd.style.background = "#222"; turnInd.style.color="white"; } 
+    else { turnInd.innerText = isMyTurn ? "Your Turn!" : `${data.turnPlayer}'s Turn`; if (isMyTurn) turnInd.classList.add('my-turn-pulse'); else { turnInd.style.background = "#444"; turnInd.style.color="white"; } }
     
     document.getElementById('snakes-dice').innerText = data.lastRoll ? `🎲 ${data.lastRoll}` : '🎲';
     document.getElementById('roll-dice-btn').onclick = () => { if(isMyTurn && !isGameOver) socket.emit('playSnakes', {roomId: myRoomId, username: myName}); };
@@ -295,7 +353,7 @@ function renderSnakes(data, isMyTurn) {
 
     data.playerList.forEach((p, idx) => {
         let icon = icons[idx % icons.length];
-        list.innerHTML += `<div>${icon} <b>${p.name}</b>: Box ${p.pos}</div>`;
+        list.innerHTML += `<div style="margin-bottom:5px;">${icon} <b>${p.name}</b>: Box ${p.pos}</div>`;
         if (p.pos > 0) {
             const piece = document.createElement('div'); piece.className = 'snake-piece'; piece.innerText = icon;
             const targetCell = document.getElementById(`sc-${p.pos}`);
@@ -308,32 +366,49 @@ function renderSnakes(data, isMyTurn) {
     });
 }
 
-// --- LUDO ---
+// --- LUDO RENDER ---
 function renderLudo(data, isMyTurn) {
     const board = document.getElementById('ludo-board');
     if (board.children.length === 0) {
         for(let r=0; r<15; r++) {
             for(let c=0; c<15; c++) {
                 const cell = document.createElement('div'); cell.className = 'ludo-cell'; cell.id = `lc-${r}-${c}`;
-                if (r < 6 && c < 6) cell.classList.add('red-home');
-                else if (r < 6 && c > 8) cell.classList.add('green-home');
-                else if (r > 8 && c < 6) cell.classList.add('blue-home');
-                else if (r > 8 && c > 8) cell.classList.add('yellow-home');
-                else if (r >= 6 && r <= 8 && c >= 6 && c <= 8) cell.classList.add('center-box');
                 board.appendChild(cell);
             }
         }
+        // Build Homes
+        const redBase = document.createElement('div'); redBase.className = 'ludo-base red';
+        redBase.innerHTML = '<div class="ludo-base-inner"><div class="ludo-token-spot" id="r-0"></div><div class="ludo-token-spot" id="r-1"></div><div class="ludo-token-spot" id="r-2"></div><div class="ludo-token-spot" id="r-3"></div></div>';
+        board.appendChild(redBase);
+
+        const greenBase = document.createElement('div'); greenBase.className = 'ludo-base green';
+        greenBase.innerHTML = '<div class="ludo-base-inner"><div class="ludo-token-spot" id="g-0"></div><div class="ludo-token-spot" id="g-1"></div><div class="ludo-token-spot" id="g-2"></div><div class="ludo-token-spot" id="g-3"></div></div>';
+        board.appendChild(greenBase);
+
+        const yellowBase = document.createElement('div'); yellowBase.className = 'ludo-base yellow';
+        yellowBase.innerHTML = '<div class="ludo-base-inner"><div class="ludo-token-spot" id="y-0"></div><div class="ludo-token-spot" id="y-1"></div><div class="ludo-token-spot" id="y-2"></div><div class="ludo-token-spot" id="y-3"></div></div>';
+        board.appendChild(yellowBase);
+
+        const blueBase = document.createElement('div'); blueBase.className = 'ludo-base blue';
+        blueBase.innerHTML = '<div class="ludo-base-inner"><div class="ludo-token-spot" id="b-0"></div><div class="ludo-token-spot" id="b-1"></div><div class="ludo-token-spot" id="b-2"></div><div class="ludo-token-spot" id="b-3"></div></div>';
+        board.appendChild(blueBase);
+
+        const centerBox = document.createElement('div'); centerBox.className = 'ludo-center-box';
+        centerBox.innerHTML = '<div class="ludo-tri-red"></div><div class="ludo-tri-green"></div><div class="ludo-tri-yellow"></div><div class="ludo-tri-blue"></div>';
+        board.appendChild(centerBox);
     }
     
     const turnInd = document.getElementById('ludo-turn-indicator'); turnInd.className = 'turn-indicator';
-    if (isGameOver) { turnInd.innerText = "GAME OVER"; turnInd.style.background = "#222"; } 
-    else { turnInd.innerText = isMyTurn ? "Your Turn!" : `${data.turnPlayer}'s Turn`; if (isMyTurn) turnInd.classList.add('my-turn-pulse'); else turnInd.style.background = "#444"; }
+    if (isGameOver) { turnInd.innerText = "GAME OVER"; turnInd.style.background = "#222"; turnInd.style.color="white"; } 
+    else { turnInd.innerText = isMyTurn ? "Your Turn!" : `${data.turnPlayer}'s Turn`; if (isMyTurn) turnInd.classList.add('my-turn-pulse'); else { turnInd.style.background = "#444"; turnInd.style.color="white"; } }
 
     document.getElementById('ludo-dice').innerText = data.lastRoll ? `🎲 ${data.lastRoll}` : '🎲';
     document.getElementById('ludo-roll-btn').onclick = () => { if(isMyTurn && !isGameOver) socket.emit('rollLudo', {roomId: myRoomId, username: myName}); };
     
     const list = document.getElementById('ludo-players-list'); list.innerHTML = '';
+    const colorHex = { 'red':'#ff5252', 'green':'#2ecc71', 'yellow':'#f1c40f', 'blue':'#3498db' };
+    
     data.playerList.forEach(p => { 
-        list.innerHTML += `<div><b>${p.name}</b> (${p.color}): Base[${p.pieces.filter(x=>x===-1).length}] Path[${p.pieces.filter(x=>x>=0 && x<57).length}] Home[${p.pieces.filter(x=>x===57).length}]</div>`; 
+        list.innerHTML += `<div style="margin-bottom:8px;"><span style="color:${colorHex[p.color]}; font-weight:bold;">● ${p.name}</span>: Home[${p.pieces.filter(x=>x===-1).length}] Path[${p.pieces.filter(x=>x>=0 && x<57).length}] Win[${p.pieces.filter(x=>x===57).length}]</div>`; 
     });
 }
