@@ -28,8 +28,13 @@
                 </div>
                 <div class="game-card" id="select-daadi">
                     <div class="daadi-mockup">🦁 vs 🐯</div>
-                    <h2>Daadi</h2>
+                    <h2>Daadi (9 Men's)</h2>
                     <p>Ancient 9 Men's Morris strategy.</p>
+                </div>
+                <div class="game-card" id="select-daadi11">
+                    <div class="daadi-mockup">🐺 vs 🦊</div>
+                    <h2>11 Men's Morris</h2>
+                    <p>The gridlock-free diagonal variant!</p>
                 </div>
                 <div class="game-card" id="select-phase10">
                     <div class="phase-card-mockup">10</div>
@@ -150,7 +155,7 @@
         </div>
     </div>
 
-    <!-- SCREEN 4C: Daadi Game Board -->
+    <!-- SCREEN 4C: Daadi / 11 Men's Game Board -->
     <div id="daadi-screen" class="screen">
         <div class="game-layout">
             <div class="board-container">
@@ -162,6 +167,11 @@
                     <div class="daadi-cross vertical bottom"></div>
                     <div class="daadi-cross horizontal left"></div>
                     <div class="daadi-cross horizontal right"></div>
+                    <!-- Diagonal Lines (Only visible in 11-coin variant) -->
+                    <div id="daadi-diagonals" style="display: none;">
+                        <div class="daadi-diagonal tl-br"></div>
+                        <div class="daadi-diagonal tr-bl"></div>
+                    </div>
                     <div id="daadi-nodes"></div>
                 </div>
             </div>
@@ -238,7 +248,7 @@
 
     <!-- Global Tribute Footer -->
     <div class="global-footer">
-        In loving memory, Dad, and the reason my world exists. All hail the architect of my dreams.
+        In loving memory, Dad, and the reason this world exists. All hail the architect of my dreams.
     </div>
 
     <script src="script.js"></script>
