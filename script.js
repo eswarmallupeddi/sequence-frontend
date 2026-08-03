@@ -5,11 +5,19 @@ const socket = io(backendUrl);
 
 socket.on('connect', () => console.log("🟢 Frontend connected!"));
 
+let myAvatarUrl = "";
+
 // Fetch Dog Pic for Lobby
 fetch('https://dog.ceo/api/breeds/image/random')
     .then(res => res.json())
-    .then(data => document.getElementById('lobby-dog-img').src = data.message)
-    .catch(() => document.getElementById('lobby-dog-img').src = 'https://upload.wikimedia.org/wikipedia/commons/d/d4/Card_back_01.svg');
+    .then(data => {
+        myAvatarUrl = data.message;
+        document.getElementById('lobby-dog-img').src = myAvatarUrl;
+    })
+    .catch(() => {
+        myAvatarUrl = 'https://upload.wikimedia.org/wikipedia/commons/d/d4/Card_back_01.svg';
+        document.getElementById('lobby-dog-img').src = myAvatarUrl;
+    });
 
 // DOM Elements
 const landingScreen = document.getElementById('landing-screen'); 
@@ -44,7 +52,12 @@ if (urlParams.get('room') && urlParams.get('game')) {
 });
 
 document.getElementById('submit-name').addEventListener('click', () => {
-    myName = document.getElementById('nickname').value.trim(); if (!myName) return alert("Enter nickname!");
+    myName = document.getElementById('nickname').value.trim(); 
+    const passcode = document.getElementById('passcode-input').value.trim();
+    
+    if (!myName) return alert("Enter nickname!");
+    if (!passcode) return alert("Please enter the access keyphrase!");
+
     nameScreen.classList.remove('active'); lobbyScreen.classList.add('active');
     document.getElementById('share-link').value = `${window.location.origin}${window.location.pathname}?game=${myGameType}&room=${myRoomId}`;
     
@@ -53,8 +66,16 @@ document.getElementById('submit-name').addEventListener('click', () => {
     } else {
         document.getElementById('lobby-teams').style.display = 'none'; document.getElementById('lobby-ffa').style.display = 'block'; document.getElementById('randomize-btn').style.display = 'none';
     }
-    socket.emit('joinRoom', { roomId: myRoomId, nickname: myName, gameType: myGameType });
+    
+    socket.emit('joinRoom', { roomId: myRoomId, nickname: myName, gameType: myGameType, passcode: passcode, avatarUrl: myAvatarUrl });
 });
+
+socket.on('passcodeError', (msg) => {
+    alert(msg);
+    lobbyScreen.classList.remove('active');
+    nameScreen.classList.add('active');
+});
+
 document.getElementById('copy-btn').addEventListener('click', () => { document.getElementById('share-link').select(); document.execCommand('copy'); });
 
 // Lobby Logic
@@ -64,15 +85,28 @@ Object.keys(dropzones).forEach(key => {
     dropzones[key].addEventListener('dragover', e => e.preventDefault());
     dropzones[key].addEventListener('drop', e => { e.preventDefault(); if (myGameType === 'sequence') socket.emit('updateTeams', { roomId: myRoomId, updatedPlayers: [{ name: e.dataTransfer.getData('text/plain'), team: key }] }); });
 });
+
 socket.on('lobbyUpdate', (players) => {
     Object.values(dropzones).forEach(z => { if(z) z.innerHTML = ''; });
     players.forEach(p => {
         if (p.name === myName) document.getElementById('start-game-btn').style.display = p.isHost ? "block" : "none";
-        const tag = document.createElement('div'); tag.className = 'player-tag'; tag.innerText = p.name + (p.name === myName ? " (You)" : "");
+        const tag = document.createElement('div'); tag.className = 'player-tag'; 
+        
+        const img = document.createElement('img');
+        img.src = p.avatarUrl || 'https://upload.wikimedia.org/wikipedia/commons/d/d4/Card_back_01.svg';
+        img.className = 'player-avatar-thumb';
+        
+        const nameSpan = document.createElement('span');
+        nameSpan.innerText = p.name + (p.name === myName ? " (You)" : "");
+
+        tag.appendChild(img);
+        tag.appendChild(nameSpan);
+
         if (myGameType === 'sequence') { tag.setAttribute('draggable', 'true'); tag.addEventListener('dragstart', e => e.dataTransfer.setData('text/plain', p.name)); (dropzones[p.team] || dropzones['blue']).appendChild(tag); } 
         else dropzones['ffa'].appendChild(tag);
     });
 });
+
 document.getElementById('randomize-btn').addEventListener('click', () => socket.emit('randomizeTeams', { roomId: myRoomId }));
 document.getElementById('start-game-btn').addEventListener('click', () => socket.emit('startGame', { roomId: myRoomId }));
 document.querySelectorAll('.rematch-btn').forEach(btn => btn.addEventListener('click', () => socket.emit('rematch', { roomId: myRoomId })));
@@ -139,7 +173,12 @@ function renderUno(data, isMyTurn) {
     if (data.drawStack > 0) stackAlert.innerText = `Pending +${data.drawStack}`; else stackAlert.innerText = '';
 
     const oppEl = document.getElementById('uno-opponents'); oppEl.innerHTML = '';
-    data.playerList.forEach(p => { if (p.name === myName) return; const div = document.createElement('div'); div.className = 'uno-opponent'; div.innerHTML = `${p.name}<br><span style="font-size:24px; color:#0de0d8">${p.cardCount}</span> cards`; oppEl.appendChild(div); });
+    data.playerList.forEach(p => { 
+        if (p.name === myName) return; 
+        const div = document.createElement('div'); div.className = 'uno-opponent'; 
+        div.innerHTML = `<img src="${p.avatarUrl}" class="player-avatar-thumb"><br>${p.name}<br><span style="font-size:24px; color:#0de0d8">${p.cardCount}</span> cards`; 
+        oppEl.appendChild(div); 
+    });
     const discardPile = document.getElementById('uno-discard-pile'); discardPile.innerHTML = ''; if (data.topCard) discardPile.appendChild(createUnoCard(data.topCard));
     const handEl = document.getElementById('uno-hand'); handEl.innerHTML = '';
     data.hand.forEach(card => {
@@ -188,7 +227,9 @@ function renderDaadi(data, isMyTurn) {
         else actionTxt.innerText = "Wait for your turn...";
     }
     const playersEl = document.getElementById('daadi-players-list'); playersEl.innerHTML = '';
-    data.playersList.forEach(p => { playersEl.innerHTML += `<div style="margin-bottom:10px;">${p.icon} <b>${p.name}</b> <br><small>Unplaced: ${p.unplaced} | On Board: ${p.onBoard}</small></div>`; });
+    data.playersList.forEach(p => { 
+        playersEl.innerHTML += `<div style="margin-bottom:10px; display:flex; align-items:center; gap:8px;"><img src="${p.avatarUrl}" class="player-avatar-thumb"><div>${p.icon} <b>${p.name}</b> <br><small>Unplaced: ${p.unplaced} | On Board: ${p.onBoard}</small></div></div>`; 
+    });
     const nodes = document.getElementById('daadi-nodes').children;
     for (let i = 0; i < 24; i++) {
         nodes[i].innerText = data.board[i] || ""; nodes[i].classList.remove('selected', 'removing-target');
@@ -219,7 +260,7 @@ function renderPhase10(data, isMyTurn) {
     const pListEl = document.getElementById('phase10-players-list'); pListEl.innerHTML = '';
     data.playerList.forEach(p => {
         const playerDiv = document.createElement('div'); playerDiv.style.marginBottom = "15px";
-        playerDiv.innerHTML = `<b>${p.name}</b>: Phase ${p.phase} ${p.hasLaidPhase ? '✓' : ''}`;
+        playerDiv.innerHTML = `<div style="display:flex; align-items:center; gap:8px;"><img src="${p.avatarUrl}" class="player-avatar-thumb"><b>${p.name}</b>: Phase ${p.phase} ${p.hasLaidPhase ? '✓' : ''}</div>`;
         if (data.laidPhases && data.laidPhases[p.name]) {
             const tableCards = document.createElement('div'); tableCards.className = 'cards-grid'; tableCards.style.transform = "scale(0.8)"; tableCards.style.transformOrigin = "left center";
             data.laidPhases[p.name].forEach(c => {
@@ -298,7 +339,6 @@ function drawSnakeLadderLines() {
         };
     }
 
-    // Draw Ladders (Gold lines)
     Object.keys(LADDERS_MAP).forEach(start => {
         const p1 = getCellCenter(start); const p2 = getCellCenter(LADDERS_MAP[start]);
         if (p1 && p2) {
@@ -311,7 +351,6 @@ function drawSnakeLadderLines() {
         }
     });
 
-    // Draw Snakes (Red/Green curves)
     Object.keys(SNAKES_MAP).forEach(start => {
         const p1 = getCellCenter(start); const p2 = getCellCenter(SNAKES_MAP[start]);
         if (p1 && p2) {
@@ -348,14 +387,13 @@ function renderSnakes(data, isMyTurn) {
     document.getElementById('roll-dice-btn').onclick = () => { if(isMyTurn && !isGameOver) socket.emit('playSnakes', {roomId: myRoomId, username: myName}); };
 
     const list = document.getElementById('snakes-players-list'); list.innerHTML = '';
-    const icons = ['🐸','🐼','🦊','🐵','🐯','🐰'];
     document.querySelectorAll('.snake-piece').forEach(e => e.remove());
 
-    data.playerList.forEach((p, idx) => {
-        let icon = icons[idx % icons.length];
-        list.innerHTML += `<div style="margin-bottom:5px;">${icon} <b>${p.name}</b>: Box ${p.pos}</div>`;
+    data.playerList.forEach((p) => {
+        list.innerHTML += `<div style="margin-bottom:8px; display:flex; align-items:center; gap:8px;"><img src="${p.avatarUrl}" class="player-avatar-thumb"><b>${p.name}</b>: Box ${p.pos}</div>`;
         if (p.pos > 0) {
-            const piece = document.createElement('div'); piece.className = 'snake-piece'; piece.innerText = icon;
+            const piece = document.createElement('div'); piece.className = 'snake-piece'; 
+            piece.innerHTML = `<img src="${p.avatarUrl}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
             const targetCell = document.getElementById(`sc-${p.pos}`);
             if(targetCell) {
                 targetCell.appendChild(piece);
@@ -406,9 +444,9 @@ function renderLudo(data, isMyTurn) {
     document.getElementById('ludo-roll-btn').onclick = () => { if(isMyTurn && !isGameOver) socket.emit('rollLudo', {roomId: myRoomId, username: myName}); };
     
     const list = document.getElementById('ludo-players-list'); list.innerHTML = '';
-    const colorHex = { 'red':'#ff5252', 'green':'#2ecc71', 'yellow':'#f1c40f', 'blue':'#3498db' };
+    const colorHex = { 'red':'#ff7675', 'green':'#27ae60', 'yellow':'#f1c40f', 'blue':'#3b82f6' };
     
     data.playerList.forEach(p => { 
-        list.innerHTML += `<div style="margin-bottom:8px;"><span style="color:${colorHex[p.color]}; font-weight:bold;">● ${p.name}</span>: Home[${p.pieces.filter(x=>x===-1).length}] Path[${p.pieces.filter(x=>x>=0 && x<57).length}] Win[${p.pieces.filter(x=>x===57).length}]</div>`; 
+        list.innerHTML += `<div style="margin-bottom:8px; display:flex; align-items:center; gap:8px;"><img src="${p.avatarUrl}" class="player-avatar-thumb"><div><span style="color:${colorHex[p.color]}; font-weight:bold;">● ${p.name}</span><br><small>Base[${p.pieces.filter(x=>x===-1).length}] Path[${p.pieces.filter(x=>x>=0 && x<57).length}] Win[${p.pieces.filter(x=>x===57).length}]</small></div></div>`; 
     });
 }
