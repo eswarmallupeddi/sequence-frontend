@@ -4,7 +4,7 @@ body { margin: 0; background-color: #2b323c; color: white; display: flex; justif
 .screen.active { display: flex; justify-content: center; align-items: center; min-height: 100vh; }
 .modal { background: #3b4252; padding: 30px; border-radius: 12px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); width: 90%; max-width: 500px; }
 .lobby-modal { max-width: 800px; }
-input[type="text"] { width: 80%; padding: 12px; margin: 10px 0; border: none; border-radius: 6px; font-size: 16px; }
+input[type="text"], input[type="password"] { width: 80%; padding: 12px; margin: 10px 0; border: none; border-radius: 6px; font-size: 16px; }
 button { background: #0de0d8; border: none; padding: 12px 25px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 16px; margin: 5px; color: #333; }
 button:hover { background: #0bc4bd; }
 .outline-btn { background: transparent; border: 2px solid #0de0d8; color: #0de0d8; }
@@ -24,7 +24,10 @@ button:hover { background: #0bc4bd; }
 .blue-team { background-color: #3b82f6; } .red-team { background-color: #ff7675; } .green-team { background-color: #27ae60; } 
 .dropzone { min-height: 150px; background: rgba(255,255,255,0.1); border-radius: 6px; padding: 10px; display: flex; flex-direction: column; gap: 10px; }
 .drag-over { filter: brightness(1.3); border: 3px dashed #fff !important; }
-.player-tag { background: rgba(0, 0, 0, 0.4); color: white; padding: 10px; border-radius: 6px; font-weight: bold; cursor: grab; text-align: center; user-select: none; }
+
+/* Player Tag with Avatar */
+.player-tag { background: rgba(0, 0, 0, 0.4); color: white; padding: 8px 12px; border-radius: 6px; font-weight: bold; cursor: grab; text-align: center; user-select: none; display: flex; align-items: center; justify-content: center; gap: 10px; }
+.player-avatar-thumb { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid #0de0d8; }
 
 /* Visual Alerts */
 .turn-indicator { margin: 0; text-align: center; padding: 10px; border-radius: 6px; transition: 0.3s; }
@@ -88,8 +91,6 @@ button:hover { background: #0bc4bd; }
 .sudoku-cell { width: 100%; aspect-ratio: 1; background: #fff; color: #111; font-size: 1.4rem; font-weight: bold; display: flex; justify-content: center; align-items: center; border: 1px solid #ddd; text-align: center; border-radius: 0; }
 .sudoku-cell:focus { outline: 3px solid #0de0d8; z-index: 10; background: #e0f7fa; }
 .sudoku-cell.fixed { background: #3b4252; color: #0de0d8; }
-
-/* 3x3 Subgrid Bold Borders */
 .sudoku-grid > input:nth-child(3n) { border-right: 3px solid #222; }
 .sudoku-grid > input:nth-child(9n+1) { border-left: 2px solid #222; }
 .sudoku-grid > input:nth-child(n+19):nth-child(-n+27), .sudoku-grid > input:nth-child(n+46):nth-child(-n+54) { border-bottom: 3px solid #222; }
@@ -104,26 +105,18 @@ button:hover { background: #0bc4bd; }
 /* Authentic 15x15 Ludo Board */
 .ludo-grid { display: grid; grid-template-columns: repeat(15, 1fr); grid-template-rows: repeat(15, 1fr); width: 100%; max-width: 550px; aspect-ratio: 1; background: #fff; border: 4px solid #222; border-radius: 8px; overflow: hidden; position: relative; }
 .ludo-cell { border: 1px solid #ccc; display: flex; justify-content: center; align-items: center; position: relative; font-size: 0.8rem; }
-
-/* 6x6 Home Bases */
 .ludo-base { grid-span: 6; display: flex; justify-content: center; align-items: center; padding: 15px; }
 .ludo-base.red { grid-column: 1 / span 6; grid-row: 1 / span 6; background: #ff5252; }
 .ludo-base.green { grid-column: 10 / span 6; grid-row: 1 / span 6; background: #2ecc71; }
 .ludo-base.yellow { grid-column: 10 / span 6; grid-row: 10 / span 6; background: #f1c40f; }
 .ludo-base.blue { grid-column: 1 / span 6; grid-row: 10 / span 6; background: #3498db; }
-
 .ludo-base-inner { width: 100%; height: 100%; background: #fff; border-radius: 12px; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; padding: 10px; gap: 10px; }
 .ludo-token-spot { border-radius: 50%; border: 3px dashed #ccc; display: flex; justify-content: center; align-items: center; }
-
-/* Center Home Triangles */
 .ludo-center-box { grid-column: 7 / span 3; grid-row: 7 / span 3; background: #fff; position: relative; border: 2px solid #222; }
 .ludo-tri-red { position: absolute; top:0; left:0; width:0; height:0; border-top: 35px solid #ff5252; border-right: 35px solid transparent; border-bottom: 35px solid transparent; border-left: 35px solid #ff5252; }
 .ludo-tri-green { position: absolute; top:0; right:0; width:0; height:0; border-top: 35px solid #2ecc71; border-right: 35px solid #2ecc71; border-bottom: 35px solid transparent; border-left: 35px solid transparent; }
 .ludo-tri-yellow { position: absolute; bottom:0; right:0; width:0; height:0; border-top: 35px solid transparent; border-right: 35px solid #f1c40f; border-bottom: 35px solid #f1c40f; border-left: 35px solid transparent; }
 .ludo-tri-blue { position: absolute; bottom:0; left:0; width:0; height:0; border-top: 35px solid transparent; border-right: 35px solid transparent; border-bottom: 35px solid #3498db; border-left: 35px solid #3498db; }
-
-.ludo-pawn { width: 24px; height: 24px; border-radius: 50%; border: 2px solid white; box-shadow: 0 3px 6px rgba(0,0,0,0.4); cursor: pointer; transition: transform 0.2s; position: absolute; z-index: 25; }
-.ludo-pawn:hover { transform: scale(1.3); }
 
 .global-footer { position: fixed; bottom: 0; left: 0; width: 100%; text-align: center; padding: 12px; font-size: 0.9rem; font-style: italic; color: #a4b0be; background: rgba(43, 50, 60, 0.95); z-index: 1000; border-top: 1px solid rgba(255,255,255,0.05); }
 @media (max-width: 900px) { .game-layout { flex-direction: column; align-items: center; } .side-panel { width: 100%; max-width: 550px; } }
